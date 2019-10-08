@@ -8,301 +8,49 @@
 #include <iomanip.h>
 
 int ButtonId;
-		int LabelId;
-		int MenuId;
-		int MenuItemId;
-		int TextBoxId;
-		int RadioButtonId;
-		int PictureBoxId;
-		int WindowLeft;
-		int WindowTop;
-		int WindowWidth;
-		int NumberOfMenus=-1;
-		int MenuWidth[70];
-		enum bool{false,true};
-		enum BUTTON{MOUSE_NORMAL = 0,MOUSE_LBUTTON=1,MOUSE_RBUTTON=2,MOUSE_MBUTTON=4};  	
-		bool IsComboClick = false;
-		bool IsMenuClick = false;
-		bool IsMenuBarCreated=false;
+int LabelId;
+int MenuId;
+int MenuItemId;
+int TextBoxId;
+int RadioButtonId;
+int PictureBoxId;
+int WindowLeft;
+int WindowTop;
+int WindowWidth;
+int TotalMenus=-1;
+int MenuWidth[70];
+const int UP = 72;
+const int DOWN = 80;
+const int ENTER = 13;
+const int Exit = 404;
+enum bool{false,true};
+enum BUTTON{MOUSE_NORMAL = 0,MOUSE_LBUTTON=1,MOUSE_RBUTTON=2,MOUSE_MBUTTON=4};  	
+bool IsComboClick = false;
+bool IsMenuClick = false;
+bool IsMenuBarCreated=false;
+bool IsPressed = false;
+int currentitem = 0;
+int currentmenu = 0;
 
-// class Button
-//   {
-
-// 	private:
-
-// 	int X,Y,Width,Height,ID;
-// 	char Caption[50];
-// 	BUTTON_STATUS btnStatus;
-// 	void MouseDown();
-// 	void MouseUp();
-// 	bool State;
-
-// 	public:
-	
-// 	Button(int X, int Y, int width, int height, char caption[], int Id);
-// 	void Draw(int color);
-// 	void Highlight(char a);
-// 	void EnableClickHandler();	
-	
-//   };
-
-//       Button::Button(int x, int x, int width, int height, char caption[], int Id)
-//     {
-// 	X = x;
-// 	Y= y;
-// 	Width = width;
-// 	Height = height;
-// 	strcpy(Caption,caption);
-// 	ID = Id;
-// 	btnStatus = BUTTON_STATUS_NORMAL;
-// 	State = false;
-//     }				
-
-
-//     void Button::Draw(int color)
-//    {
-// 	textcolor(color);
-//     int n = Y;
-//     int a = Width-1;
-//     gotoxy(X,Y);
-//     char w[70] = " ";
-//     char h[25] = " ";
-//     h[0] = char(179)    ;
-//     for(int i = 0;i<Width;i++)
-//     {
-//         w[i]=char(196);
-//         h[i+1] = ' ';
-//     }
-//     h[a] = char(179);
-//     cprintf(w);
-//     n++;
-//     for(int j = 0 ;j<Height;j++)
-//     {
-//         gotoxy(X,n);
-//         cprintf(h);
-//         n++;
-//     }
-//     gotoxy(X,n);
-//     cprintf(w);
-//     gotoxy(X+2,Y+(Height%2));
-//     textcolor(WHITE);
-//     cprintf(Caption);
-	
-//    }
-
-//    void Textbox::Highlight(char a)
-//    {
-//    	char w[70] = " ";
-//     for(int i = 0;i<Width;i++)
-//         w[i] = a;
-//     textcolor(RED);
-//     gotoxy(X,Y+Height+1);
-//     cprintf(w);
-//     textcolor(WHITE);
-//    }
-
-//    void Button::MouseDown()
-//    {
-
-
-
-
-// 				mouse.HideMouse();
-
-// 				draw(RED);
-
-// 				mouse.ShowMouse();
-
-
-
-
-//    }
-
-//    void Button::MouseUp()
-//    {
-
-
-
-// 					mouse.HideMouse();
-
-// 					draw(YELLOW);
-
-// 					mouse.ShowMouse();
-
-
-
-
-
-
-//    }
-
-
-//    void Button::EnableClickHandler()
-//    {
-
-// 		// if(IsComboClick || IsMenuClick)return;
-
-// 		if(State)
-// 		{
-// 			ButtonId = 0;
-// 			State = false;
-// 			return;
-// 		}
-	
-// 		if(mouse.MouseInside(X,Top,X+Width,Top+Height) == 1)
-// 		{
-
-// 			if(mouse.GetButton() == MOUSE_LBUTTON)
-// 			{
-// 				MouseDown();
-// 				btnStatus = BUTTON_STATUS_DOWN;
-// 			}
-
-// 			else if(btnStatus == BUTTON_STATUS_DOWN && mouse.GetButton() == MOUSE_NORMAL) 
-// 			{
-// 				MouseUp();
-// 				ButtonId = ID;
-// 				btnStatus = BUTTON_STATUS_NORMAL;
-// 				State = true;
-				
-// 			}
-
-// 		}
-
-// 	}
-	
-class Mouse
-
-	{
-	
-	
-		private: 
-		
-			int MouseXpos, MouseYpos;
-			BUTTON MouseBtn;
-			union REGS in,out;
-
-		public:
-
-			int InstallMouse();
-			int ShowMouse();
-			int HideMouse();
-			void GetMouseStatus();
-			BUTTON GetButton();
-			int GetPosX();
-			int GetPosY();
-			void SetMousePosi(int &xpos, int &ypos);
-			int MouseInside(int x1, int y1, int x2, int y2);
-			void RestrictMousePtr(int x1, int y1, int x2, int y2);
-
-	};
-
-Mouse mouse;
-
-int Mouse::InstallMouse()
-	{
- 
-		in.x.ax = 0;
-		int86(0x33,&in,&out);
-		return out.x.ax;
-  
-	}
-	int Mouse::ShowMouse()
-	{
-  
-		in.x.ax = 1;
-		int86(0x33,&in,&out);
-		return 1;
-  
-	}  
-	int Mouse::HideMouse()
-	{
-
-		in.x.ax = 2;
-		int86(0x33,&in,&out);
-		return 1;
-
-	}
-	void Mouse::GetMouseStatus()
-	{
-
-		in.x.ax = 3;
-		int86(0x33,&in,&out);
-		MouseXpos = out.x.cx;
-		MouseYpos = out.x.dx;
-		MouseBtn = out.x.bx;
-
-	}
-	BUTTON Mouse::GetButton()
-	{
-		return MouseBtn;
-	}
-	
-	int Mouse::GetPosX()
-	{
-		return MouseXpos;
-	}
-
-	int Mouse::GetPosY()
-	{
-		return MouseYpos;
-	}
-	
-	void Mouse::SetMousePosi(int &xpos, int &ypos)
-	{
-		in.x.ax = 4;
-		in.x.cx = xpos;
-		in.x.dx = ypos;
-		int86(0x33,&in,&out);
-	}
-	int Mouse::MouseInside(int x1, int y1, int x2, int y2)
-	{
-		int x_pos, y_pos;
-		in.x.ax = 3;
-		int86(0x33,&in,&out);
-		x_pos = out.x.cx;
-		y_pos = out.x.dx;
-  
-		if(x_pos >= x1 && y_pos >= y1 && x_pos <= x2 && y_pos <= y2)
-			return 1;
-		else 
-			return 0;
-  
-	}
-	void Mouse::RestrictMousePtr(int x1, int y1, int x2, int y2)
-	{
-
-		in.x.ax = 7;
-		in.x.cx = x1;
-		in.x.dx = x2;
-		int86(0x33,&in,&out);  
-
-		in.x.ax = 8;
-		in.x.cx = y1;
-		in.x.dx = y2;
-		int86(0x33,&in,&out);  
-
-	}
+void Navigate();
+void welcome();
+void CustomerLogin();
 
 /********************************************************************TEXTBOX************************************************************/
 
 class TextBox
-  {
-
+{
 	private:
 
-
-	int Alignment;
+	int Alignment,Color;
   	bool bReadOnly;
-
+    void (*Callback)(void);
 	int X,Y,Width,Height,ID;
 	char Caption[50];
 	
-	void MouseDown();
-
 	public:
 	
-	TextBox(int x, int y, int width, int height, char caption[],int Align, int Id);
+	TextBox(int x, int y, int width, int height, char caption[],int Align,int color, int Id,void (*callback)(void));
 	void Draw();
 	void Highlight(char a);
 	void EnableClickHandler();
@@ -310,10 +58,10 @@ class TextBox
 	void SetText(char text[]);
 	char *GetText();
 	void Clear();
-  }; 	
+}; 	
 
-  TextBox::TextBox(int x, int y, int width, int height, char caption[],int Align, int Id)
-    {
+TextBox::TextBox(int x, int y, int width, int height, char caption[],int Align,int color, int Id,void (*callback)(void))
+{
 	X= x;
 	Y = y;
 	Width = width;
@@ -321,44 +69,50 @@ class TextBox
 	strcpy(Caption,caption);
 	ID = Id;
 	Alignment = Align;
-	bReadOnly = false;
-    }				
+    Color=color;
+	bReadOnly = true;
+    Callback=callback;
+}				
 
-
-    void TextBox::Draw()
-   {
-
-	textcolor(YELLOW);
+void TextBox::Draw()
+{
+	textcolor(Color);
     int n = Y;
     int a = Width-1;
     gotoxy(X,Y);
-    char w[70] = " ";
-    char h[25] = " ";
-    h[0] = char(179)    ;
+    char w[100] = " ";
+    char h[100] = " ";
+    h[0] = char(179);
     for(int i = 0;i<Width;i++)
     {
         w[i]=char(196);
+        //cprintf("-");
         h[i+1] = ' ';
     }
     h[a] = char(179);
     cprintf(w);
     n++;
-    for(int j = 0 ;j<Height;j++)
+    for(int j = 0;j<Height;j++)
     {
         gotoxy(X,n);
         cprintf(h);
         n++;
     }
     gotoxy(X,n);
+    // for(int k = 0;k<Width;k++)
+    // {
+    //     //w[i]=char(196);
+    //     cprintf("-");
+    //     //h[i+1] = ' ';
+    // }
     cprintf(w);
     gotoxy(X+2,Y+(Height%2));
     textcolor(WHITE);
-    cprintf(Caption);
-	
-   }
+    cprintf(Caption);	
+}
 
-   void TextBox::Highlight(char a)
-   {
+void TextBox::Highlight(char a)
+{
    	char w[70] = " ";
     for(int i = 0;i<Width;i++)
         w[i] = a;
@@ -366,144 +120,235 @@ class TextBox
     gotoxy(X,Y+Height+1);
     cprintf(w);
     textcolor(WHITE);
-   }
-
-   void TextBox::MouseDown()
-   {
-		
-		if(bReadOnly) return; 
-
-		int ch;
-		int len=strlen(Caption),curpos,curx;
-		
-
-		mouse.HideMouse();
-		curpos=len;
-		do{
-			curx=X+strlen(Caption)+1;
-
-			if(!kbhit())
-			{
-				// setwritemode(XOR_PUT);
-				// setcolor(WHITE);
-				// line(curx,Top+2,curx,Top+Height-2);
-				// do{
-				// 	line(curx,Top+2,curx,Top+Height-2);
-				// 	delay(100);
-				//   }while(!kbhit());
-				// 	setwritemode(COPY_PUT);
-				//window(X+2,Y+(Height%2),X+2+len,Y+(Height%2));
-				textcolor(BLACK);
-	            textbackground(WHITE);
-
-			}
-
-
-			ch=getch();
-			if(ch==0) ch=getch();
-			switch (ch)
-			{
-				case 8: 
-					if(len>0)
-					{
-						Caption[curpos-1]=0;
-						curpos--;
-						len--;
-					}
-			    break;
-			}
-			if(isprint(ch))
-			{
-				Caption[curpos]=ch;
-				Caption[curpos+1]=0;
-				if(X+strlen(Caption)>X+Width)
-				{
-					Caption[curpos]=0;
-					Draw();
-					break;
-				}
-				else
-				{
-					curpos++;
-					len++;
-				}
-			}
-               textcolor(WHITE);
-	            textbackground(BLACK);
-				Draw();
-		}while(ch!=13 && ch!=27);
-		mouse.ShowMouse();
-        //window(0,0,80,25);
-		}
-		
-	void TextBox::SetReadOnly(bool ReadOnly)
-	{
-		bReadOnly = ReadOnly;
-	}
+}
 	
-	void TextBox::SetText(char text[])
-	{
-		if (X + strlen(Caption) <= X + Width - strlen(" "))
-		{
-			strcat(Caption,text);
-			Draw();
-		}
-	}
-
-	char *TextBox::GetText()
-	{
-		return Caption;
-	}
+void TextBox::SetReadOnly(bool ReadOnly)
+{
+	bReadOnly = ReadOnly;
+}
 	
-	void TextBox::Clear()
+void TextBox::SetText(char text[])
+{
+	if (X + strlen(Caption) <= X + Width - strlen(" ") && !bReadOnly)
 	{
-		strcpy(Caption,"");
+		strcat(Caption,text);
 		Draw();
 	}
+}
 
-   void TextBox::EnableClickHandler()
-   {
-	// if(IsComboClick || IsMenuClick)return;
-		
-		if(mouse.MouseInside(X,Y,X+Width+1,Y+Height+1) == 1)
-		{
-            Highlight('*');
-			if(mouse.GetButton() == MOUSE_LBUTTON)
-			{
-			MouseDown();
-			TextBoxId = ID;
-			}
-		}
-		else{
-			//Draw();
-		}
- 
-   }
+char *TextBox::GetText()
+{
+	return Caption;
+}
+	
+void TextBox::Clear()
+{
+	strcpy(Caption,"");
+	Draw();
+}
 
-   void main()
-   {
-   	clrscr();
-   	mouse.InstallMouse();
-   	_setcursortype(_NORMALCURSOR);
-   	TextBox *pTextBox = new TextBox(20,3,20,1,"hello",0,0);
-   	TextBox *pTextBox1 = new TextBox(20,7,20,1,"hello",0,1);
-	pTextBox->Draw();
-	pTextBox1->Draw();
-	while(1){
+void TextBox::EnableClickHandler()
+{
+	Callback();
+}
 
-		 mouse.ShowMouse(); // To show mouse
-		 mouse.GetMouseStatus(); // To get position of mouse
-		 pTextBox->EnableClickHandler();
-		 pTextBox1->EnableClickHandler();
-		  while(kbhit()){
-		char ch = getch();
-		if (ch == 27)  //ESC key pressed
-		exit(0);
-	   }
+class Menu
+{
+public:
+    int pageid;
+    int itemnumber;
+    int left_allign;
+    int centre_allign;
+    int right_allign;
+    TextBox *textbox[10];
+    TextBox *menubar;
+    char Caption[80];
+    Menu(int p,char a[80])
+    {
+        pageid = p;
+        itemnumber=-1;
+        currentitem=0;
+        TotalMenus++;
+        strcpy(Caption,a);
+    }
+    void Drawbox(int l,int b,int x ,int y,char text[]);
+    void Highlight(int l, int b,int x , int y , char a);
+    //void AddItem(int l,int b,int x ,int y,char text[],int color=YELLOW);
+    void AddItem(TextBox *tb);
+    void Draw();
+    void Scroll(int currentitem,int dir);
+    void EnableClickHandler(int current_item);
+    ~Menu(){
+ 			delete textbox;
+ 			delete menubar;
+ 		}
+};
 
-	}
-         
+void Menu::Drawbox(int l,int b,int x ,int y,char text[])
+{
+    textcolor(YELLOW);
+    int n = y;
+    int a = l-1;
+    gotoxy(x,y);
+    char w[70] = " ";
+    char h[25] = " ";
+    h[0] = char(179)    ;
+    for(int i = 0;i<l;i++)
+    {
+        w[i]=char(196);
+        h[i+1] = ' ';
+    }
+    h[a] = char(179);
+    cprintf(w);
+    n++;
+    for(int j = 0 ;j<b;j++)
+    {
+        gotoxy(x,n);
+        cprintf(h);
+        n++;
+    }
+    gotoxy(x,n);
+    cprintf(w);
+    gotoxy(x+2,y+(b%2));
+    textcolor(WHITE);
+    cprintf(text);
+    
+}
+// void Menu::AddItem(int l,int b,int x ,int y,char text[],int color)
+// {
+// 	textbox[itemnumber]= new TextBox(l,b,x,y,text,0,color,itemnumber);
+// 	itemnumber++;
+// }
+void Menu::AddItem(TextBox *tb)
+{
+    itemnumber++;
+    textbox[itemnumber]= tb;
+}
+void Menu::Highlight(int l, int b,int x , int y , char a)
+{
+    int m = x,n=y;
+    char w[70] = " ";
+    for(int i = 0;i<l;i++)
+        w[i] = a;
+    textcolor(RED);
+    gotoxy(m,n+b+1);
+    cprintf(w);
+    textcolor(WHITE);
+}
 
+void Menu::Draw()
+{
+    TextBox *menubar = new TextBox(1,1,80,1,Caption,0,YELLOW,-1,CustomerLogin);
+	menubar->Draw();
+	for(int i=0;i<=itemnumber;i++)
+    {
+    	textbox[i]->Draw();
+    }
+    textbox[currentitem]->Highlight('*');
+}
 
-
-   }
+void Menu::Scroll(int current_item,int dir)
+{
+    textbox[current_item]->Draw();
+    switch(dir)
+        {
+        case DOWN:
+        {
+        if(current_item<itemnumber)
+        {
+             currentitem++;
+             textbox[(current_item+1)]->Highlight('*');
+        }
+        else if(current_item ==itemnumber)
+        {
+             currentitem = 0;
+             textbox[currentitem]->Highlight('*');
+        }
+        }
+          break;
+          case UP:
+           {
+        if(current_item>0)
+        {
+             currentitem--;
+             textbox[currentitem]->Highlight('*');
+        }
+        else if(currentitem == 0)
+        {
+             currentitem = itemnumber;
+             textbox[currentitem]->Highlight('*');
+        }
+           }
+        break;
+    }
+}
+void Menu::EnableClickHandler(int current_item)
+{
+    textbox[current_item]->EnableClickHandler();
+}
+Menu *menu[10];
+void Navigate()
+{
+    char a,b;
+    
+    while(1)
+    {
+        a=getch();
+        switch(tolower(a))
+        {
+            case 0:
+            {
+            b = getch();
+            switch(b)
+            {
+                case DOWN:
+                {
+                    menu[currentmenu]->Scroll(currentitem,DOWN); 
+                
+                }
+                break;
+                case UP:
+                {
+                    menu[currentmenu]->Scroll(currentitem,UP);
+                    
+                }
+                break;
+                case 13:
+                    menu[currentmenu]->EnableClickHandler(currentitem);
+                break;
+            }// switch b ends
+            }// case :0 ends
+            break;
+            case 13:{
+                menu[currentmenu]->EnableClickHandler(currentitem);
+                //return;
+            }
+            break;
+            case 'x':
+                return;
+            break;
+        }// switch a ends
+    }
+}
+void welcome()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,CustomerLogin);
+    TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,CustomerLogin);
+    menu[0] = new Menu(0,"WELCOME");
+    menu[0]->AddItem(pAdmin);
+    menu[0]->AddItem(pCustomer);
+    menu[0]->Draw(); 
+    Navigate();
+    menu[0]->Draw();
+}
+void CustomerLogin()
+{
+    clrscr();
+    getch();
+}
+void main()
+{
+    welcome();
+}
