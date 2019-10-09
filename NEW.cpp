@@ -247,6 +247,7 @@ void TextBox::Highlight(char a)
         int ch;
         int len=strlen(Caption),curpos,curx;
         curpos=len;
+        //if(getch()==13){
         do{
             curx=X+strlen(Caption)+2;
             gotoxy(curx,Y+(Height%2));
@@ -287,6 +288,7 @@ void TextBox::Highlight(char a)
 
             Draw();
         }while(ch!=13 && ch!=27);
+        //}//if enter not pressed
     }
     _setcursortype(_NOCURSOR);
     char w[70] = " ";
@@ -345,7 +347,7 @@ public:
     int left_allign;
     int centre_allign;
     int right_allign;
-    TextBox *textbox[10];
+    TextBox *textbox[25];
     TextBox *menubar;
     char Caption[80];
     Menu(int p,char a[80])
@@ -469,7 +471,7 @@ void Menu::EnableClickHandler(int current_item)
 {
     textbox[current_item]->EnableClickHandler();
 }
-Menu *menu[10];
+Menu *menu[30];
 int Navigate()
 {
     char a,b;
@@ -737,7 +739,26 @@ void AdminLogin()
 }
 
 void AdminHome(){}
-void CustomerHome(){}
+void CustomerHome()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    //delete menu[currentmenu];
+    currentmenu=3;
+    TextBox *m1 = new TextBox(5,5,10,5,"Movie 1",0,YELLOW,0,CustomerHome);
+    TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,CustomerHome);
+    TextBox *m3 = new TextBox(5,12,10,5,"Movie 3",0,CYAN,2,CustomerHome);
+    TextBox *m4 = new TextBox(50,12,10,5,"Movie 4",0,CYAN,3,CustomerHome);
+    menu[currentmenu]= new Menu(3,"Now Playing");
+    menu[currentmenu]->AddItem(m1);
+    menu[currentmenu]->AddItem(m2);
+    menu[currentmenu]->AddItem(m3);
+    menu[currentmenu]->AddItem(m4);
+    menu[currentitem]->Draw();
+    Navigate();
+    getch();
+
+}
 void chkadmin()
 {
     fstream fil;
