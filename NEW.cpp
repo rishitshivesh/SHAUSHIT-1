@@ -577,7 +577,7 @@ void AdminSignUp()
     ADMIN Admin;
     Admin.inputdata(pName->GetText(),pUsername->GetText(),pPassword->GetText(),pemail->GetText(),pPhone->GetText());
     fstream fil;
-    fil.open("admin.dat",ios::binary|ios::app);
+    fil.open("admintext.dat",ios::binary|ios::app);
     fil.write((char*)&Admin,sizeof(Admin));
     fil.close();
     menu[currentmenu]->EnableClickHandler(currentitem);
@@ -633,7 +633,7 @@ void CustomerSignUp()
             else
             {
                 fstream fil;
-                fil.open("customer.dat",ios::binary|ios::app);
+                fil.open("customertext.dat",ios::binary|ios::app);
                 fil.write((char *)&Customer,sizeof(Customer));
                 fil.close();
                 Customerlogin();
@@ -762,7 +762,7 @@ void CustomerHome()
 void chkadmin()
 {
     fstream fil;
-    fil.open("Admin.dat",ios::binary|ios::in|ios::out);
+    fil.open("admintext.dat",ios::binary|ios::in|ios::out);
     fil.seekg(0,ios::end);
     if(fil.tellg()==0)
     {
