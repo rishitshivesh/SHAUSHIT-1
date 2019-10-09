@@ -1,5 +1,5 @@
 #include <conio.h>
-#include <iostream.h>
+#include <fstream.h>
 #include <string.h>
 #include <stdio.h>
 #include <dos.h>
@@ -31,11 +31,125 @@ bool IsMenuBarCreated=false;
 bool IsPressed = false;
 int currentitem = 0;
 int currentmenu = 0;
+int LoginStatus=0;
+
 
 void Navigate();
 void welcome();
-void CustomerLogin();
+void Customerlogin();
+void CustomerSignUp();
+void CustomerTime();
+void CustomerHome();
+void AdminLogin();
+void AdminSignUp();
+void AdminHome();
+void about();
+void del()
+{}
+int CheckFile(char *username,char *password);
+int AdminCheckID(char *username,char *password);
 
+class MOVIE
+{
+    public:
+    char MovieName[50],Timing[5];
+    float Price;
+    char* Mn()
+    {return MovieName;}
+
+};
+class CUSTOMER
+{
+    char Password[50];
+public:
+    char Username[50];
+    char Name[50], EMail[25];
+    char Phone[10];
+
+    //CUSTOMER(char *user,char *pass);
+    void inputdata(char *name, char *username,char *password, char *email, char *phone);
+    int CheckPassword(char *password);
+
+
+};
+class ADMIN
+{
+    char Password[50];
+public:
+    char Username[50];
+    char Name[50], EMail[25];
+    char Phone[10];
+    void inputdata(char *name, char *username,char *password, char *email, char *phone);
+    int CheckPassword(char *password);
+
+
+};
+int ADMIN::CheckPassword(char *password)
+{
+    if(strcmp(Password,password)==0)
+        return 1;
+    else{
+        return 0;
+    }
+}
+void ADMIN::inputdata(char *name, char *username,char *password, char *email, char *phone)
+{
+    strcpy(Name,name);
+    strcpy(Username,username);
+    strcpy(Password,password);
+    strcpy(EMail,email);
+    strcpy(Phone,phone);
+}
+int CUSTOMER::CheckPassword(char *password)
+{
+    if(strcmp(Password,password)==0)
+        return 1;
+    else{
+        return 0;
+    }
+}
+void CUSTOMER::inputdata(char *name, char *username,char *password, char *email, char *phone)
+{
+    strcpy(Name,name);
+    strcpy(Username,username);
+    strcpy(Password,password);
+    strcpy(EMail,email);
+    strcpy(Phone,phone);
+}
+int AdminCheckID(char *username,char *password=" ")
+{
+    ADMIN Admin;
+    fstream fil;
+    int exists=0;
+    fil.open("admin.dat",ios::binary|ios::in);
+    while(fil.read((char *)&Admin,sizeof(Admin)))
+    {
+        if(strcmp(Admin.Username,username)==0&&Admin.CheckPassword(password))
+            exists=1;
+
+    }
+    fil.close();
+    return exists;
+}
+
+int CheckFile(char *username,char *password=" ")
+{
+    CUSTOMER Customer;
+    fstream fil;
+    int exists=0;
+    fil.open("customer.dat",ios::binary|ios::in);
+    while(fil.read((char *)&Customer,sizeof(Customer)))
+    {
+        if(strcmp(Customer.Username,username)==0 && Customer.CheckPassword(password))
+            exists=1;
+        else if(strcmp(Customer.Username,username)==0)
+            exists=2;
+
+    }
+
+    fil.close();
+    return exists;
+}
 /********************************************************************TEXTBOX************************************************************/
 
 class TextBox
@@ -238,7 +352,7 @@ void Menu::Highlight(int l, int b,int x , int y , char a)
 
 void Menu::Draw()
 {
-    TextBox *menubar = new TextBox(1,1,80,1,Caption,0,YELLOW,-1,CustomerLogin);
+    TextBox *menubar = new TextBox(1,1,80,1,Caption,0,YELLOW,-1,Customerlogin);
 	menubar->Draw();
 	for(int i=0;i<=itemnumber;i++)
     {
@@ -289,9 +403,9 @@ void Menu::EnableClickHandler(int current_item)
 Menu *menu[10];
 void Navigate()
 {
-    char a,b;
+    char a='*',b;
     
-    while(1)
+    do
     {
         a=getch();
         switch(tolower(a))
@@ -313,40 +427,79 @@ void Navigate()
                     
                 }
                 break;
-                case 13:
-                    menu[currentmenu]->EnableClickHandler(currentitem);
-                break;
             }// switch b ends
             }// case :0 ends
             break;
             case 13:{
-                menu[currentmenu]->EnableClickHandler(currentitem);
-                //return;
+                return;
             }
             break;
             case 'x':
-                return;
+                exit(0);
             break;
         }// switch a ends
-    }
+    }while(a!='x');
 }
 void welcome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,CustomerLogin);
-    TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,CustomerLogin);
+    TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,AdminLogin);
+    TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,Customerlogin);
     menu[0] = new Menu(0,"WELCOME");
     menu[0]->AddItem(pAdmin);
     menu[0]->AddItem(pCustomer);
     menu[0]->Draw(); 
+    currentmenu = 0;
     Navigate();
-    menu[0]->Draw();
+    menu[currentmenu]->EnableClickHandler(currentitem);
+    delete menu[currentmenu];
+    //menu[0]->Draw();
 }
-void CustomerLogin()
+void Customerlogin()
 {
     clrscr();
-    getch();
+    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,welcome);
+    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,welcome);
+    menu[1]= new Menu(1,"Customer Login");
+    menu[1]->AddItem(pUsername);
+    menu[1]->AddItem(pPassword);
+    menu[1]->Draw(); 
+    currentmenu=1;
+    Navigate();
+    menu[currentmenu]->EnableClickHandler(currentitem);
+    delete menu[currentmenu];
+    //clrscr();
+}
+void AdminLogin()
+{
+    clrscr();
+    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,welcome);
+    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,welcome);
+    menu[1]= new Menu(1,"Admin Login");
+    menu[1]->AddItem(pUsername);
+    menu[1]->AddItem(pPassword);
+    menu[1]->Draw(); 
+    currentmenu=1;
+    Navigate();
+    menu[currentmenu]->EnableClickHandler(currentitem);
+    delete menu[currentmenu];
+}
+void chkadmin()
+{
+    fstream fil;
+    fil.open("Admin.dat",ios::binary|ios::in|ios::out);
+    fil.seekg(0,ios::end);
+    if(fil.tellg()==0)
+    {
+       fil.close();
+       //AdminSignUp();
+    }
+    else
+    {
+       fil.close();
+       welcome();
+    }
 }
 void main()
 {
