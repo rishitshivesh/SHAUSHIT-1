@@ -510,6 +510,9 @@ int Navigate()
             case 'x':
                 exit(0);
             break;
+            default:
+                return (int)a;
+            break;
         }// switch a ends
     }while(a!='x');
 }
@@ -517,7 +520,7 @@ void welcome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu=0;
     TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,AdminLogin);
     TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,Customerlogin);
@@ -549,7 +552,7 @@ void AdminSignUp()
     clrscr();
     _setcursortype(_NOCURSOR);
 
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu = 1;
     TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,AdminSignUp);
     TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,AdminSignUp);
@@ -587,7 +590,7 @@ void CustomerSignUp()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu = 1;
     TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,CustomerSignUp);
     TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,CustomerSignUp);
@@ -650,7 +653,7 @@ void Customerlogin()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu = 2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,Customerlogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,Customerlogin);
@@ -696,7 +699,7 @@ void AdminLogin()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu=2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,AdminLogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,AdminLogin);
@@ -743,7 +746,7 @@ void CustomerHome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    //delete menu[currentmenu];
+    delete menu[currentmenu];
     currentmenu=3;
     TextBox *m1 = new TextBox(5,5,10,5,"Movie 1",0,YELLOW,0,CustomerHome);
     TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,CustomerHome);
@@ -756,7 +759,7 @@ void CustomerHome()
     menu[currentmenu]->AddItem(m4);
     menu[currentitem]->Draw();
     Navigate();
-    getch();
+    //getch();
 
 }
 void chkadmin()
