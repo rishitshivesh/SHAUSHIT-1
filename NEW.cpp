@@ -15,7 +15,6 @@ const int ENTER = 13;
 const int Exit = 404;
 enum bool{false,true};
 enum BUTTON{MOUSE_NORMAL = 0,MOUSE_LBUTTON=1,MOUSE_RBUTTON=2,MOUSE_MBUTTON=4};  	
-bool IsComboClick = false;
 bool IsMenuClick = false;
 bool IsMenuBarCreated=false;
 bool IsPressed = false;
