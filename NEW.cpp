@@ -7,20 +7,10 @@
 #include <ctype.h>
 #include <iomanip.h>
 
-int ButtonId;
-int LabelId;
-int MenuId;
-int MenuItemId;
-int TextBoxId;
-int RadioButtonId;
-int PictureBoxId;
-int WindowLeft;
-int WindowTop;
-int WindowWidth;
-int TotalMenus=-1;
-int MenuWidth[70];
 const int UP = 72;
 const int DOWN = 80;
+const int LEFT = 75;
+const int RIGHT = 77;
 const int ENTER = 13;
 const int Exit = 404;
 enum bool{false,true};
@@ -31,10 +21,11 @@ bool IsMenuBarCreated=false;
 bool IsPressed = false;
 int currentitem = 0;
 int currentmenu = 0;
-int LoginStatus=0;
+int TotalMenus=-1;
+bool Admin_LoggedIn = false;
+bool Customer_LoggedIn = false;
 
-
-void Navigate();
+int Navigate();
 void welcome();
 void Customerlogin();
 void CustomerSignUp();
@@ -78,7 +69,7 @@ class ADMIN
     char Password[50];
 public:
     char Username[50];
-    char Name[50], EMail[25];
+    char Name[50], EMail[50];
     char Phone[10];
     void inputdata(char *name, char *username,char *password, char *email, char *phone);
     int CheckPassword(char *password);
@@ -151,6 +142,7 @@ int CheckFile(char *username,char *password=" ")
     fil.close();
     return exists;
 }
+
 /********************************************************************TEXTBOX************************************************************/
 
 class TextBox
@@ -160,13 +152,14 @@ class TextBox
 	int Alignment,Color;
   	bool bReadOnly;
     void (*Callback)(void);
-	int X,Y,Width,Height,ID;
-	char Caption[50];
+	int X,Y,Width,Height;
+	char Caption[100];
     bool Hide;
-    char HiddenText[50];
+    char HiddenText[100];
 	
 	public:
 	
+    int ID;
 	TextBox(int x, int y, int width, int height, char caption[],int Align,int color, int Id,void (*callback)(void));
 	void Draw();
 	void Highlight(char a);
@@ -222,12 +215,6 @@ void TextBox::Draw()
         n++;
     }
     gotoxy(X,n);
-    // for(int k = 0;k<Width;k++)
-    // {
-    //     //w[i]=char(196);
-    //     cprintf("-");
-    //     //h[i+1] = ' ';
-    // }
     cprintf(w);
     gotoxy(X+2,Y+(Height%2));
     textcolor(WHITE);
@@ -279,7 +266,7 @@ void TextBox::Highlight(char a)
                     }
                 break;
             }
-            if(isalnum(ch))
+            if(isprint(ch))
             {
                 Caption[curpos]=ch;
                 HiddenText[curpos]='*';
@@ -372,10 +359,10 @@ public:
     }
     void Drawbox(int l,int b,int x ,int y,char text[]);
     void Highlight(int l, int b,int x , int y , char a);
-    //void AddItem(int l,int b,int x ,int y,char text[],int color=YELLOW);
     void AddItem(TextBox *tb);
     void Draw();
-    void Scroll(int currentitem,int dir);
+    void Scroll(int current_item,int dir);
+    int ReturnID(int current_item);
     void EnableClickHandler(int current_item);
     ~Menu(){
  			delete textbox;
@@ -389,7 +376,7 @@ void Menu::Drawbox(int l,int b,int x ,int y,char text[])
     int n = y;
     int a = l-1;
     gotoxy(x,y);
-    char w[70] = " ";
+    char w[80] = " ";
     char h[25] = " ";
     h[0] = char(179)    ;
     for(int i = 0;i<l;i++)
@@ -413,11 +400,6 @@ void Menu::Drawbox(int l,int b,int x ,int y,char text[])
     cprintf(text);
     
 }
-// void Menu::AddItem(int l,int b,int x ,int y,char text[],int color)
-// {
-// 	textbox[itemnumber]= new TextBox(l,b,x,y,text,0,color,itemnumber);
-// 	itemnumber++;
-// }
 void Menu::AddItem(TextBox *tb)
 {
     itemnumber++;
@@ -445,7 +427,10 @@ void Menu::Draw()
     }
     textbox[currentitem]->Highlight('*');
 }
-
+int Menu::ReturnID(int current_item)
+{
+    return textbox[current_item]->ID;
+}
 void Menu::Scroll(int current_item,int dir)
 {
     textbox[current_item]->Draw();
@@ -486,9 +471,9 @@ void Menu::EnableClickHandler(int current_item)
     textbox[current_item]->EnableClickHandler();
 }
 Menu *menu[10];
-void Navigate()
+int Navigate()
 {
-    char a='*',b;
+    char a,b;
     
     do
     {
@@ -501,12 +486,14 @@ void Navigate()
             switch(b)
             {
                 case DOWN:
+                case LEFT://sahi hai mere bhai
                 {
                     menu[currentmenu]->Scroll(currentitem,DOWN); 
                 
                 }
                 break;
                 case UP:
+                case RIGHT:
                 {
                     menu[currentmenu]->Scroll(currentitem,UP);
                     
@@ -516,7 +503,7 @@ void Navigate()
             }// case :0 ends
             break;
             case 13:{
-                return;
+                return menu[currentmenu]->ReturnID(currentitem);
             }
             break;
             case 'x':
@@ -529,59 +516,229 @@ void welcome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    delete menu[currentmenu];
+    //delete menu[currentmenu];
+    currentmenu=0;
     TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,AdminLogin);
     TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,Customerlogin);
-    menu[0] = new Menu(0,"WELCOME");
-    menu[0]->AddItem(pAdmin);
-    menu[0]->AddItem(pCustomer);
-    menu[0]->Draw(); 
-    currentmenu = 0;
-    Navigate();
+    menu[currentmenu] = new Menu(0,"WELCOME");
+    menu[currentmenu]->AddItem(pAdmin);
+    menu[currentmenu]->AddItem(pCustomer);
+    menu[currentmenu]->Draw(); 
+    switch(Navigate())
+    {
+        case 0:
+        {
+            if(Admin_LoggedIn)
+                AdminHome();
+            else {AdminLogin();}
+        }
+        break;
+        case 1:
+        {
+            if(Customer_LoggedIn)
+                CustomerHome();
+            else {Customerlogin();}
+        }
+        break;
+    }
+}
+
+void AdminSignUp()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+
+    //delete menu[currentmenu];
+    currentmenu = 1;
+    TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,AdminSignUp);
+    TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,AdminSignUp);
+    TextBox *pPassword = new TextBox(30,11,20,1,"Password",0,YELLOW,2,AdminSignUp);
+    TextBox *pPhone = new TextBox(30,14,20,1,"PHONE NUMBER",0,GREEN,3,AdminSignUp);
+    TextBox *pemail = new TextBox(10,17,65,1,"EMAIL ID",0,YELLOW,4,AdminSignUp);
+    TextBox *pNext = new TextBox(30,21,20,1,"NEXT",0,CYAN,5,welcome);
+    pName->SetReadOnly(false);
+    pUsername->SetReadOnly(false);
+    pPhone->SetReadOnly(false);
+    pemail->SetReadOnly(false);
+    pPassword->SetReadOnly(false);
+
+    menu[currentmenu]= new Menu(1,"ADMIN SIGN UP");
+    menu[currentmenu]->AddItem(pName);
+    menu[currentmenu]->AddItem(pUsername);
+    menu[currentmenu]->AddItem(pPassword);
+    menu[currentmenu]->AddItem(pPhone);
+    menu[currentmenu]->AddItem(pemail);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->Draw(); 
+    pPassword->HideText(true);
+
+    if(Navigate()==5){
+    ADMIN Admin;
+    Admin.inputdata(pName->GetText(),pUsername->GetText(),pPassword->GetText(),pemail->GetText(),pPhone->GetText());
+    fstream fil;
+    fil.open("admin.dat",ios::binary|ios::app);
+    fil.write((char*)&Admin,sizeof(Admin));
+    fil.close();
     menu[currentmenu]->EnableClickHandler(currentitem);
-    delete menu[currentmenu];
-    //menu[0]->Draw();
+    }
+}
+void CustomerSignUp()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    //delete menu[currentmenu];
+    currentmenu = 1;
+    TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,CustomerSignUp);
+    TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,CustomerSignUp);
+    TextBox *pPassword = new TextBox(30,11,20,1,"Password",0,YELLOW,2,CustomerSignUp);
+    TextBox *pPhone = new TextBox(30,14,20,1,"PHONE NUMBER",0,GREEN,3,CustomerSignUp);
+    TextBox *pemail = new TextBox(10,17,65,1,"EMAIL ID",0,YELLOW,4,CustomerSignUp);
+    TextBox *pNext = new TextBox(30,21,20,1,"NEXT",0,CYAN,5,Customerlogin);
+    TextBox *pBack = new TextBox(10,21,20,1,"BACK",0,CYAN,6,Customerlogin);
+    pName->SetReadOnly(false);
+    pUsername->SetReadOnly(false);
+    pPhone->SetReadOnly(false);
+    pemail->SetReadOnly(false);
+    pPassword->SetReadOnly(false);
+
+    menu[currentmenu]= new Menu(1,"CUSTOMER SIGN UP");
+    menu[currentmenu]->AddItem(pName);
+    menu[currentmenu]->AddItem(pUsername);
+    menu[currentmenu]->AddItem(pPassword);
+    menu[currentmenu]->AddItem(pPhone);
+    menu[currentmenu]->AddItem(pemail);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw(); 
+    pPassword->HideText(true);
+
+    switch(Navigate())
+    {
+        case 6:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+        case 5:
+        {
+            CUSTOMER Customer;
+
+            Customer.inputdata(pName->GetText(),pUsername->GetText(),pPassword->GetText(),pemail->GetText(),pPhone->GetText());
+            if(CheckFile(pUsername->GetText())==2)
+            {
+                gotoxy(15,20);
+                cprintf("User Exists. Press Enter to go to LoginPage!");
+                if(getch()==13)
+                    Customerlogin();
+            }
+            else
+            {
+                fstream fil;
+                fil.open("customer.dat",ios::binary|ios::app);
+                fil.write((char *)&Customer,sizeof(Customer));
+                fil.close();
+                Customerlogin();
+            }
+        }
+        break;
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
+    
 }
 void Customerlogin()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    delete menu[currentmenu];
+    //delete menu[currentmenu];
+    currentmenu = 2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,Customerlogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,Customerlogin);
-    TextBox *pNext = new TextBox(30,12,20,1,"NEXT",0,CYAN,2,welcome);
-    menu[1]= new Menu(1,"Customer Login");
-    menu[1]->AddItem(pUsername);
-    menu[1]->AddItem(pPassword);
-    menu[1]->AddItem(pNext);
-    menu[1]->Draw(); 
-    currentmenu=1;
-    Navigate();
-    menu[currentmenu]->EnableClickHandler(currentitem);
-    delete menu[currentmenu];
-    //clrscr();
+    TextBox *pCustomerSignUp = new TextBox(30,11,20,1,"New Here, SIGN UP",4,LIGHTGREEN,1,CustomerSignUp);
+    TextBox *pNext = new TextBox(50,15,20,1,"NEXT",0,CYAN,2,CustomerHome);
+    TextBox *pBack = new TextBox(10,15,20,1,"BACK",0,CYAN,3,welcome);
+    pUsername->SetReadOnly(false);
+    pPassword->SetReadOnly(false);
+    menu[currentmenu]= new Menu(2,"Customer Login");
+    menu[currentmenu]->AddItem(pUsername);
+    menu[currentmenu]->AddItem(pPassword);
+    menu[currentmenu]->AddItem(pCustomerSignUp);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw(); 
+    pPassword->HideText(true);
+    switch(Navigate())
+    {
+        case 3:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+        case 2:
+        {
+            if(CheckFile(pUsername->GetText(),pPassword->GetText())==1)
+            {
+                Customer_LoggedIn =true;
+                CustomerHome();
+            }
+            else{
+                gotoxy(20,14);
+                cprintf("Incorrect Password or Username,Press Enter to Retry");
+                if(getch()==13)
+                    Customerlogin();
+            }
+        }
+        break;
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
 }
 void AdminLogin()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    delete menu[currentmenu];
+    //delete menu[currentmenu];
+    currentmenu=2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,AdminLogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,AdminLogin);
-    TextBox *pNext = new TextBox(30,12,20,1,"NEXT",0,CYAN,2,welcome);
+    TextBox *pNext = new TextBox(50,12,20,1,"NEXT",0,CYAN,2,welcome);
+    TextBox *pBack = new TextBox(10,12,20,1,"BACK",0,CYAN,3,welcome);
     pUsername->SetReadOnly(false);
     pPassword->SetReadOnly(false);
+    menu[currentmenu]= new Menu(2,"Admin Login");
+    menu[currentmenu]->AddItem(pUsername);
+    menu[currentmenu]->AddItem(pPassword);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw(); 
     pPassword->HideText(true);
-    menu[1]= new Menu(1,"Admin Login");
-    menu[1]->AddItem(pUsername);
-    menu[1]->AddItem(pPassword);
-    menu[1]->AddItem(pNext);
-    menu[1]->Draw(); 
-    currentmenu=1;
-    Navigate();
-    menu[currentmenu]->EnableClickHandler(currentitem);
-    delete menu[currentmenu];
+
+    switch(Navigate())
+    {
+        case 3:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+        case 2:
+        {
+            if(AdminCheckID(pUsername->GetText(),pPassword->GetText())==1)
+            {
+                Admin_LoggedIn=true;
+                AdminHome();
+            }
+            else{
+                gotoxy(20,11);
+                cprintf("Incorrect Password,Press Enter to Retry");
+                if(getch()==13)
+                    AdminLogin();
+            }
+        }
+        break;
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
 }
+
+void AdminHome(){}
+void CustomerHome(){}
 void chkadmin()
 {
     fstream fil;
@@ -590,7 +747,7 @@ void chkadmin()
     if(fil.tellg()==0)
     {
        fil.close();
-       //AdminSignUp();
+       AdminSignUp();
     }
     else
     {
@@ -600,5 +757,5 @@ void chkadmin()
 }
 void main()
 {
-    welcome();
+    chkadmin();
 }
