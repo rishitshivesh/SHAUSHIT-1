@@ -44,6 +44,7 @@ void AdminLogin();
 void AdminSignUp();
 void AdminHome();
 void about();
+void Default(){return;}
 void del()
 {}
 int CheckFile(char *username,char *password);
@@ -161,6 +162,8 @@ class TextBox
     void (*Callback)(void);
 	int X,Y,Width,Height,ID;
 	char Caption[50];
+    bool Hide;
+    char HiddenText[50];
 	
 	public:
 	
@@ -170,6 +173,7 @@ class TextBox
 	void EnableClickHandler();
 	void SetReadOnly(bool ReadOnly);
 	void SetText(char text[]);
+    void HideText(bool Hide);
 	char *GetText();
 	void Clear();
 }; 	
@@ -185,7 +189,12 @@ TextBox::TextBox(int x, int y, int width, int height, char caption[],int Align,i
 	Alignment = Align;
     Color=color;
 	bReadOnly = true;
+    Hide = false;
     Callback=callback;
+    int i;
+        for(i=0;i<strlen(Caption);i++)
+        HiddenText[i] = '*';
+        HiddenText[i]=0;       
 }				
 
 void TextBox::Draw()
@@ -222,12 +231,79 @@ void TextBox::Draw()
     cprintf(w);
     gotoxy(X+2,Y+(Height%2));
     textcolor(WHITE);
-    cprintf(Caption);	
+    if(Hide)
+    cprintf(HiddenText);	
+    else{cprintf(Caption);}
 }
 
 void TextBox::Highlight(char a)
 {
-   	char w[70] = " ";
+   	if(bReadOnly)
+    {
+        _setcursortype(_NOCURSOR);
+        char w[70] = " ";
+        for(int i = 0;i<Width;i++)
+            w[i] = a;
+        textcolor(RED);
+        gotoxy(X,Y+Height+1);
+        cprintf(w);
+        textcolor(WHITE);
+    }
+    else{
+        char w[70] = " ";
+        for(int i = 0;i<Width;i++)
+            w[i] = a;
+        textcolor(RED);
+        gotoxy(X,Y+Height+1);
+        cprintf(w);
+        textcolor(WHITE);
+
+        int ch;
+        int len=strlen(Caption),curpos,curx;
+        curpos=len;
+        do{
+            curx=X+strlen(Caption)+2;
+            gotoxy(curx,Y+(Height%2));
+            _setcursortype(_NORMALCURSOR);
+            ch=getch();
+            if(ch==0) ch=getch();
+            switch (ch)
+            {
+                case 8: //backspace
+                    if(len>0)
+                    {
+                        Caption[curpos-1]=0;
+                        HiddenText[curpos-1]=0;                     
+                        curpos--;
+                        len--;
+                    }
+                break;
+            }
+            if(isalnum(ch))
+            {
+                Caption[curpos]=ch;
+                HiddenText[curpos]='*';
+                Caption[curpos+1]=0;
+                HiddenText[curpos+1]=0;
+                if(X+strlen(Caption)>X+Width)
+                {
+                    Caption[curpos]=0;
+                    HiddenText[curpos]=0;
+                    Draw();
+                    break;
+                }
+                else
+                {
+                    curpos++;
+                    len++;
+                }
+            }
+
+            Draw();
+        }while(ch!=13 && ch!=27);
+    }
+    _setcursortype(_NOCURSOR);
+    char w[70] = " ";
     for(int i = 0;i<Width;i++)
         w[i] = a;
     textcolor(RED);
@@ -246,10 +322,18 @@ void TextBox::SetText(char text[])
 	if (X + strlen(Caption) <= X + Width - strlen(" ") && !bReadOnly)
 	{
 		strcat(Caption,text);
+        int i;
+        for(i=0;i<strlen(Caption);i++)
+        HiddenText[i] = '*';
+        HiddenText[i]=0;  
 		Draw();
 	}
 }
 
+void TextBox::HideText(bool hide)
+{
+    Hide = hide;
+}
 char *TextBox::GetText()
 {
 	return Caption;
@@ -258,6 +342,7 @@ char *TextBox::GetText()
 void TextBox::Clear()
 {
 	strcpy(Caption,"");
+    strcpy(HiddenText,"");
 	Draw();
 }
 
@@ -444,6 +529,7 @@ void welcome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
     TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,AdminLogin);
     TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,Customerlogin);
     menu[0] = new Menu(0,"WELCOME");
@@ -459,11 +545,15 @@ void welcome()
 void Customerlogin()
 {
     clrscr();
-    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,welcome);
-    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,welcome);
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,Customerlogin);
+    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,Customerlogin);
+    TextBox *pNext = new TextBox(30,12,20,1,"NEXT",0,CYAN,2,welcome);
     menu[1]= new Menu(1,"Customer Login");
     menu[1]->AddItem(pUsername);
     menu[1]->AddItem(pPassword);
+    menu[1]->AddItem(pNext);
     menu[1]->Draw(); 
     currentmenu=1;
     Navigate();
@@ -474,11 +564,18 @@ void Customerlogin()
 void AdminLogin()
 {
     clrscr();
-    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,welcome);
-    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,welcome);
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,AdminLogin);
+    TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,AdminLogin);
+    TextBox *pNext = new TextBox(30,12,20,1,"NEXT",0,CYAN,2,welcome);
+    pUsername->SetReadOnly(false);
+    pPassword->SetReadOnly(false);
+    pPassword->HideText(true);
     menu[1]= new Menu(1,"Admin Login");
     menu[1]->AddItem(pUsername);
     menu[1]->AddItem(pPassword);
+    menu[1]->AddItem(pNext);
     menu[1]->Draw(); 
     currentmenu=1;
     Navigate();
