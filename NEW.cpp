@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <iomanip.h>
+#include <math.h>
 
 const int UP = 72;
 const int DOWN = 80;
@@ -35,6 +36,8 @@ void AdminSignUp();
 void AdminHome();
 void about();
 void Default(){return;}
+void EnterSeats();
+void seats(int Seats_Needed);
 void del()
 {}
 int CheckFile(char *username,char *password);
@@ -49,6 +52,7 @@ class MOVIE
     {return MovieName;}
 
 };
+
 class CUSTOMER
 {
     char Password[50];
@@ -61,8 +65,25 @@ public:
     void inputdata(char *name, char *username,char *password, char *email, char *phone);
     int CheckPassword(char *password);
 
-
+ 
 };
+int CUSTOMER::CheckPassword(char *password)
+{
+    if(strcmp(Password,password)==0)
+        return 1;
+    else{
+        return 0;
+    }
+}
+void CUSTOMER::inputdata(char *name, char *username,char *password, char *email, char *phone)
+{
+    strcpy(Name,name);
+    strcpy(Username,username);
+    strcpy(Password,password);
+    strcpy(EMail,email);
+    strcpy(Phone,phone);
+}
+
 class ADMIN
 {
     char Password[50];
@@ -91,22 +112,7 @@ void ADMIN::inputdata(char *name, char *username,char *password, char *email, ch
     strcpy(EMail,email);
     strcpy(Phone,phone);
 }
-int CUSTOMER::CheckPassword(char *password)
-{
-    if(strcmp(Password,password)==0)
-        return 1;
-    else{
-        return 0;
-    }
-}
-void CUSTOMER::inputdata(char *name, char *username,char *password, char *email, char *phone)
-{
-    strcpy(Name,name);
-    strcpy(Username,username);
-    strcpy(Password,password);
-    strcpy(EMail,email);
-    strcpy(Phone,phone);
-}
+
 int AdminCheckID(char *username,char *password=" ")
 {
     ADMIN Admin;
@@ -370,6 +376,63 @@ public:
  			delete menubar;
  		}
 };
+
+/*****************************************THEATRE**********************************************************/
+struct THEATRE
+{
+
+};
+/*****************************************SEAT***************************************************************/
+class Seat
+{
+    int X,Y,Color,SColor;
+public:
+    int ID;
+    bool Select;
+    bool Occupied;
+    Seat(int x, int y,int color=YELLOW,int scolor = GREEN, int Id = 0);
+    void Draw(int color = YELLOW);
+    void Highlight(); 
+};
+void Seat::Seat(int x, int y,int color,int scolor, int Id)
+{
+    X=x;
+    Y=y;
+    ID=Id;
+    Color = color;
+    SColor = scolor;
+    Select=false;
+    Occupied = false;
+}
+void Seat::Draw(int color)
+{
+    window(X,Y,X+1,Y+1);
+    clrscr();
+    gotoxy(1,1);
+    if(Select){
+        textcolor(SColor);
+        cprintf("%c",178);
+    }
+    else if(Occupied){
+        textcolor(DARKGRAY);
+        cprintf("%c",177);
+    }
+    else{
+        textcolor(color);
+        cprintf("%c",177);
+    }
+    window(1,1,80,25);
+}
+void Seat::Highlight()
+{
+    window(X,Y,X+1,Y+1);
+    gotoxy(1,2);
+    textcolor(RED);
+    cprintf("%c",220);
+    window(1,1,80,25);
+}
+Seat *seat[100];
+/*****************************************MENU*********************************************/
 
 void Menu::Drawbox(int l,int b,int x ,int y,char text[])
 {
@@ -744,6 +807,7 @@ void AdminLogin()
 void AdminHome(){}
 void CustomerHome()
 {
+    window(1,1,80,25);
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
@@ -778,7 +842,229 @@ void chkadmin()
        welcome();
     }
 }
+void EnterSeats()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    currentmenu=4;
+    int Seats_Needed=1;
+    TextBox *nos = new TextBox(30,10,20,1,"Enter Seats",0,GREEN,0,Default);
+    TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
+    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,welcome);
+    nos->SetReadOnly(false);
+    menu[currentmenu]= new Menu(4,"Enter number of Seats");
+    menu[currentmenu]->AddItem(nos);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw(); 
+
+    switch(Navigate())
+    {
+        case 2:
+        {
+            if(atoi(nos->GetText())>0)
+                seats(atoi(nos->GetText()));
+        }
+        break;
+        case 3:
+        {
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        }
+        break;
+    }
+}
+void seats(int Seats_Needed)
+{
+    //chkadmin();
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    currentmenu=5;
+    
+    TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
+    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,welcome);
+    window(1,1,80,25);
+    menu[currentmenu]= new Menu(5,"Seats");
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw(); 
+    int i=0,j=0,k=0,Max_Seats=25,a;
+    
+    for(j=0;j<25;j++)
+    {
+       delete seat[j];
+    }
+    while(i<25)
+    {
+        for(j = 0;j<5;j++)
+            {
+                seat[i] = new Seat(20+(10*j),5+k,YELLOW,GREEN,i);
+                seat[i]->Draw();
+                i++;
+            }
+        k+=4;
+    }
+    i = 0;
+    seat[0]->Highlight();
+    for(j=i;j<i+Seats_Needed&&j<25;j++)
+    {
+        seat[j]->Draw(LIGHTGREEN);    
+    }
+    seat[i]->Highlight();
+    
+    do{
+        int a = getch();
+        
+        switch(a)
+        {
+            case 0:
+            {
+                a=getch();
+                switch(a)
+                {
+                    case RIGHT:
+                    {
+                        if(i<24){
+                            for(j=0;j<25;j++)
+                            {
+                                seat[j]->Select=false;
+                                seat[j]->Draw();
+                            }
+                            seat[++i]->Highlight();
+                            for(j=i;j<i+Seats_Needed&&j<25;j++)
+                            {
+                                seat[j]->Draw(LIGHTGREEN);
+                            }
+                            seat[i]->Highlight();
+                        }
+                    }
+                    break;
+                    case LEFT:
+                    {
+                        if(i>0){
+                            for(j=0;j<25;j++)
+                            {
+                                seat[j]->Select=false;
+                                seat[j]->Draw();
+                            }
+                            seat[--i]->Highlight();
+                            for(j=i;j<i+Seats_Needed&&j<25;j++)
+                            {
+                                seat[j]->Draw(LIGHTGREEN);    
+                            }
+                            seat[i]->Highlight();
+                        }
+                    }
+                    break;
+                    case UP:
+                    {
+                        if(i>4&&i<25)
+                        {
+                            for(j=0;j<25;j++)
+                            {
+                                seat[j]->Select=false;
+                                seat[j]->Draw();
+                            }
+                            i-=5;
+                            seat[i]->Highlight();
+                            for(j=i;j<i+Seats_Needed&&j<25;j++)
+                            {
+                                seat[j]->Draw(LIGHTGREEN);
+                                
+                            }
+                            seat[i]->Highlight();
+                        }
+                    }
+                    break;
+                    case DOWN:
+                    {
+                        if(i>=0&&i<20)
+                        {
+                            for(j=0;j<25;j++)
+                            {
+                                seat[j]->Select=false;
+                                seat[j]->Draw();
+                            }
+                            i+=5;
+                            seat[i]->Highlight(); 
+                            for(j=i;j<i+Seats_Needed&&j<25;j++)
+                            {
+                                seat[j]->Draw(LIGHTGREEN);    
+                            }
+                            seat[i]->Highlight();
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+            case ENTER:
+            {
+                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                {
+                    seat[j]->Select=true;
+                    seat[j]->Draw();
+                }
+                window(20,24,50,25);
+                clrscr();
+                gotoxy(1,1);
+                cprintf("Do you want to continue(y/n)");
+                if(tolower(getch())=='y')
+                {
+                    for(j=i;j<i+Seats_Needed&&j<25;j++)
+                    {
+                        seat[j]->Occupied=true;
+                        seat[j]->Select=false;
+                        seat[j]->Draw();
+                    }
+                    window(20,24,50,25);
+                    clrscr();
+                    window(1,1,80,25);
+                    break;
+                }
+                else{
+                    window(1,1,80,25);
+                    clrscr();
+                    for(j=0;j<25;j++)
+                    // {
+                    //     seat[j]->Select=false;
+                    //     seat[j]->Draw();
+                    // }
+                    // for(j=i;j<i+4&&j<25;j++)
+                    // {
+                    //     seat[j]->Select=true;
+                    //     seat[j]->Draw();
+                    // }
+                    seats(Seats_Needed);
+                }
+            }
+            break;
+            case 27:
+            {
+                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                {
+                    seat[j]->Select=false;
+                    seat[j]->Draw();
+                }
+                seat[i]->Highlight();
+            }
+            break;
+            case 'x':
+            {
+                for(i =0;i<25;i++)
+                {
+                    delete seat[i];
+                }
+                exit(0);
+            }
+            break;
+        }
+    }while(a!='x');
+    getch();
+}
 void main()
 {
-    chkadmin();
+    //chkadmin();
+    EnterSeats();
 }
