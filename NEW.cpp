@@ -433,6 +433,8 @@ void Seat::Highlight()
     window(1,1,80,25);
 }
 Seat *seat[100];
+
+
 /*****************************************MENU*********************************************/
 
 void Menu::Drawbox(int l,int b,int x ,int y,char text[])
@@ -817,14 +819,36 @@ void CustomerHome()
     TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,EnterSeats);
     TextBox *m3 = new TextBox(5,12,10,5,"Movie 3",0,CYAN,2,EnterSeats);
     TextBox *m4 = new TextBox(50,12,10,5,"Movie 4",0,CYAN,3,EnterSeats);
+    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,4,Customerlogin);
     menu[currentmenu]= new Menu(3,"Now Playing");
     menu[currentmenu]->AddItem(m1);
     menu[currentmenu]->AddItem(m2);
     menu[currentmenu]->AddItem(m3);
     menu[currentmenu]->AddItem(m4);
+    menu[currentmenu]->AddItem(pBack);
     menu[currentitem]->Draw();
     switch(Navigate())
     {
+        case 4:
+        {
+                window(20,24,50,25);
+                clrscr();
+                gotoxy(1,1);
+                cprintf("Do you want to LOG OUT(y/n)");
+                if(tolower(getch())=='y')
+                {
+                    window(20,24,50,25);
+                    clrscr();
+                    window(1,1,80,25);
+                    Customer_LoggedIn=false;
+                    menu[currentmenu]->EnableClickHandler(currentitem);
+                    break;
+                }
+                else{
+                    window(1,1,80,25);
+                } 
+        }
+        break;
         default:
             menu[currentmenu]->EnableClickHandler(currentitem);
         break;
@@ -897,19 +921,23 @@ void seats(int Seats_Needed)
     menu[currentmenu]->Draw(); 
     int i=0,j=0,k=0,Max_Seats=25,a,l=0;
     
-    for(j=0;j<25;j++)
+    // for(j=0;j<25;j++)
+    // {
+    //    delete seat[j];
+    // }
+    // while(i<25)
+    // {
+    //     for(j = 0;j<5;j++)
+    //         {
+    //             seat[i] = new Seat(20+(10*j),5+k,YELLOW,GREEN,i);
+    //             seat[i]->Draw();
+    //             i++;
+    //         }
+    //     k+=4;
+    // }
+    for(i=0;i<Max_Seats;i++)
     {
-       delete seat[j];
-    }
-    while(i<25)
-    {
-        for(j = 0;j<5;j++)
-            {
-                seat[i] = new Seat(20+(10*j),5+k,YELLOW,GREEN,i);
-                seat[i]->Draw();
-                i++;
-            }
-        k+=4;
+        seat[i]->Draw();
     }
     
     i = 0;
@@ -1010,8 +1038,11 @@ void seats(int Seats_Needed)
             {
                 for(j=i;j<i+Seats_Needed&&j<25;j++)
                 {
-                    seat[j]->Select=true;
-                    seat[j]->Draw();
+                    if(!(seat[j]->Occupied))
+                    {
+                        seat[j]->Select=true;
+                        seat[j]->Draw();
+                    }
                 }
                 window(20,24,50,25);
                 clrscr();
@@ -1044,7 +1075,7 @@ void seats(int Seats_Needed)
                     //     seat[j]->Select=true;
                     //     seat[j]->Draw();
                     // }
-                    seats(Seats_Needed);
+                    EnterSeats();
                 }
             }
             break;
@@ -1069,10 +1100,10 @@ void seats(int Seats_Needed)
             break;
         }
     }while(a!='x'&&l!=1);
-    for(j =0;j<25;j++)
-    {
-        delete seat[j];
-    }
+    // for(j =0;j<25;j++)
+    // {
+    //     delete seat[j];
+    // }
     switch(Navigate())
     {
         default: 
@@ -1082,6 +1113,20 @@ void seats(int Seats_Needed)
 }
 void main()
 {
+    int p=0,q=0,r=0;
+    while(p<25)
+    {
+        for(q = 0;q<5;q++)
+            {
+                seat[p] = new Seat(20+(10*q),5+r,YELLOW,GREEN,p);
+                p++;
+            }
+        r+=4;
+    }
     chkadmin();
     //EnterSeats();
+    for(p =0;p<25;p++)
+    {
+        delete seat[p];
+    }
 }
