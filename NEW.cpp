@@ -372,8 +372,9 @@ public:
     int ReturnID(int current_item);
     void EnableClickHandler(int current_item);
     ~Menu(){
- 			delete textbox;
  			delete menubar;
+            for(int i = 0;i<itemnumber;i++)
+                delete textbox[i];
  		}
 };
 
@@ -812,17 +813,22 @@ void CustomerHome()
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
     currentmenu=3;
-    TextBox *m1 = new TextBox(5,5,10,5,"Movie 1",0,YELLOW,0,CustomerHome);
-    TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,CustomerHome);
-    TextBox *m3 = new TextBox(5,12,10,5,"Movie 3",0,CYAN,2,CustomerHome);
-    TextBox *m4 = new TextBox(50,12,10,5,"Movie 4",0,CYAN,3,CustomerHome);
+    TextBox *m1 = new TextBox(5,5,10,5,"Movie 1",0,YELLOW,0,EnterSeats);
+    TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,EnterSeats);
+    TextBox *m3 = new TextBox(5,12,10,5,"Movie 3",0,CYAN,2,EnterSeats);
+    TextBox *m4 = new TextBox(50,12,10,5,"Movie 4",0,CYAN,3,EnterSeats);
     menu[currentmenu]= new Menu(3,"Now Playing");
     menu[currentmenu]->AddItem(m1);
     menu[currentmenu]->AddItem(m2);
     menu[currentmenu]->AddItem(m3);
     menu[currentmenu]->AddItem(m4);
     menu[currentitem]->Draw();
-    Navigate();
+    switch(Navigate())
+    {
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
     //getch();
 
 }
@@ -851,7 +857,7 @@ void EnterSeats()
     int Seats_Needed=1;
     TextBox *nos = new TextBox(30,10,20,1,"Enter Seats",0,GREEN,0,Default);
     TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
-    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,welcome);
+    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,CustomerHome);
     nos->SetReadOnly(false);
     menu[currentmenu]= new Menu(4,"Enter number of Seats");
     menu[currentmenu]->AddItem(nos);
@@ -883,13 +889,13 @@ void seats(int Seats_Needed)
     currentmenu=5;
     
     TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
-    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,welcome);
+    TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,CustomerHome);
     window(1,1,80,25);
     menu[currentmenu]= new Menu(5,"Seats");
     menu[currentmenu]->AddItem(pNext);
     menu[currentmenu]->AddItem(pBack);
     menu[currentmenu]->Draw(); 
-    int i=0,j=0,k=0,Max_Seats=25,a;
+    int i=0,j=0,k=0,Max_Seats=25,a,l=0;
     
     for(j=0;j<25;j++)
     {
@@ -905,6 +911,7 @@ void seats(int Seats_Needed)
             }
         k+=4;
     }
+    
     i = 0;
     seat[0]->Highlight();
     for(j=i;j<i+Seats_Needed&&j<25;j++)
@@ -1021,6 +1028,7 @@ void seats(int Seats_Needed)
                     window(20,24,50,25);
                     clrscr();
                     window(1,1,80,25);
+                    l=1;
                     break;
                 }
                 else{
@@ -1060,11 +1068,20 @@ void seats(int Seats_Needed)
             }
             break;
         }
-    }while(a!='x');
-    getch();
+    }while(a!='x'&&l!=1);
+    for(j =0;j<25;j++)
+    {
+        delete seat[j];
+    }
+    switch(Navigate())
+    {
+        default: 
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
 }
 void main()
 {
-    //chkadmin();
-    EnterSeats();
+    chkadmin();
+    //EnterSeats();
 }
