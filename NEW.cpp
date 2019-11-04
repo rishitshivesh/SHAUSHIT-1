@@ -14,6 +14,7 @@ const int LEFT = 75;
 const int RIGHT = 77;
 const int ENTER = 13;
 const int Exit = 404;
+int Max_Seats=25;
 enum bool{false,true};
 enum BUTTON{MOUSE_NORMAL = 0,MOUSE_LBUTTON=1,MOUSE_RBUTTON=2,MOUSE_MBUTTON=4};  	
 bool IsMenuClick = false;
@@ -36,6 +37,7 @@ void AdminSignUp();
 void AdminHome();
 void about();
 void Default(){return;}
+int Seats_Occupied();
 void EnterSeats();
 void seats(int Seats_Needed);
 void del()
@@ -345,38 +347,7 @@ void TextBox::EnableClickHandler()
 	Callback();
 }
 
-class Menu
-{
-public:
-    int pageid;
-    int itemnumber;
-    int left_allign;
-    int centre_allign;
-    int right_allign;
-    TextBox *textbox[25];
-    TextBox *menubar;
-    char Caption[80];
-    Menu(int p,char a[80])
-    {
-        pageid = p;
-        itemnumber=-1;
-        currentitem=0;
-        TotalMenus++;
-        strcpy(Caption,a);
-    }
-    void Drawbox(int l,int b,int x ,int y,char text[]);
-    void Highlight(int l, int b,int x , int y , char a);
-    void AddItem(TextBox *tb);
-    void Draw();
-    void Scroll(int current_item,int dir);
-    int ReturnID(int current_item);
-    void EnableClickHandler(int current_item);
-    ~Menu(){
- 			delete menubar;
-            for(int i = 0;i<itemnumber;i++)
-                delete textbox[i];
- 		}
-};
+
 
 /*****************************************THEATRE**********************************************************/
 struct THEATRE
@@ -436,7 +407,45 @@ Seat *seat[100];
 
 
 /*****************************************MENU*********************************************/
+class Menu
+{
+public:
+    int pageid;
+    int itemnumber;
+    int left_allign;
+    int centre_allign;
+    int right_allign;
+    TextBox *textbox[25];
+    TextBox *menubar;
+    char Caption[80];
+    Menu(int p,char a[80])
+    {
+        pageid = p;
+        itemnumber=-1;
+        currentitem=0;
+        TotalMenus++;
+        strcpy(Caption,a);
+        menubar = NULL;
+        for(int i=0;i<25;i++)
+        {
+            textbox[i]= NULL;
+        }
+    }
+    void Drawbox(int l,int b,int x ,int y,char text[]);
+    void Highlight(int l, int b,int x , int y , char a);
+    void AddItem(TextBox *tb);
+    void Draw();
+    void Scroll(int current_item,int dir);
+    int ReturnID(int current_item);
+    void EnableClickHandler(int current_item);
+    ~Menu(){
+            delete menubar;
+            for(int i = 0;i<itemnumber;i++)
+                delete textbox[i];
+            //delete this;
 
+        }
+};
 void Menu::Drawbox(int l,int b,int x ,int y,char text[])
 {
     textcolor(YELLOW);
@@ -587,6 +596,7 @@ void welcome()
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu=0;
     TextBox *pAdmin = new TextBox(30,5,20,1,"ADMIN",0,YELLOW,0,AdminLogin);
     TextBox *pCustomer = new TextBox(30,8,20,1,"CUSTOMER",0,GREEN,1,Customerlogin);
@@ -619,6 +629,7 @@ void AdminSignUp()
     _setcursortype(_NOCURSOR);
 
     delete menu[currentmenu];
+    flushall();
     currentmenu = 1;
     TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,AdminSignUp);
     TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,AdminSignUp);
@@ -657,6 +668,7 @@ void CustomerSignUp()
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu = 1;
     TextBox *pName = new TextBox(30,5,20,1,"NAME",0,YELLOW,0,CustomerSignUp);
     TextBox *pUsername = new TextBox(30,8,20,1,"Username",0,GREEN,1,CustomerSignUp);
@@ -720,6 +732,7 @@ void Customerlogin()
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu = 2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,Customerlogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,Customerlogin);
@@ -766,6 +779,7 @@ void AdminLogin()
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu=2;
     TextBox *pUsername = new TextBox(30,5,20,1,"Username",0,YELLOW,0,AdminLogin);
     TextBox *pPassword = new TextBox(30,8,20,1,"Password",0,GREEN,1,AdminLogin);
@@ -807,13 +821,38 @@ void AdminLogin()
     }
 }
 
-void AdminHome(){}
-void CustomerHome()
+void AdminHome()
 {
-    window(1,1,80,25);
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
+    currentmenu=3;
+    TextBox *Movie_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,Default);
+    TextBox *Theatre_Settings = new TextBox(25,8,30,1,"Theatre Settings",0,YELLOW,1,Default);
+    TextBox *pNext = new TextBox(50,12,20,1,"NEXT",0,CYAN,2,welcome);
+    TextBox *pBack = new TextBox(10,12,20,1,"BACK",0,CYAN,3,AdminLogin);
+    menu[currentmenu]= new Menu(3,"Hello Motu Admin");
+    menu[currentmenu]->AddItem(Movie_Settings);
+    menu[currentmenu]->AddItem(Theatre_Settings);
+    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentitem]->Draw();
+    switch(Navigate())
+    {
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
+}
+void CustomerHome()
+{
+    clrscr();
+    //window(1,1,80,25);
+    //clrscr();
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    flushall();
     currentmenu=3;
     TextBox *m1 = new TextBox(5,5,10,5,"Movie 1",0,YELLOW,0,EnterSeats);
     TextBox *m2 = new TextBox(50,5,10,5,"Movie 2",0,GREEN,1,EnterSeats);
@@ -846,6 +885,7 @@ void CustomerHome()
                 }
                 else{
                     window(1,1,80,25);
+                    CustomerHome();
                 } 
         }
         break;
@@ -871,15 +911,27 @@ void chkadmin()
        fil.close();
        welcome();
     }
+    fil.close();
+}
+int Seats_Occupied()
+{
+    int s = 0;
+    for(int i = 0;i<Max_Seats;i++)
+    {
+        if(seat[i]->Occupied==true)
+            s++;
+    }
+    return s;
 }
 void EnterSeats()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu=4;
     int Seats_Needed=1;
-    TextBox *nos = new TextBox(30,10,20,1,"Enter Seats",0,GREEN,0,Default);
+    TextBox *nos = new TextBox(30,10,20,1,"Enter Seats",0,GREEN,0,EnterSeats);
     TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
     TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,CustomerHome);
     nos->SetReadOnly(false);
@@ -893,11 +945,23 @@ void EnterSeats()
     {
         case 2:
         {
-            if(atoi(nos->GetText())>0)
-                seats(atoi(nos->GetText()));
+            Seats_Needed = atoi(nos->GetText());
+            if(Seats_Needed<=(25-Seats_Occupied()) && Seats_Needed>0)//
+            {
+                seats(Seats_Needed);
+            }
+
+            else{
+                gotoxy(20,20);
+                cout<<"only "<<Seats_Occupied()<<" seats are available PRESS ENTER";
+                getch();
+                delete menu[currentmenu];
+                flushall();
+                EnterSeats();
+            }
         }
         break;
-        case 3:
+        default:
         {
             menu[currentmenu]->EnableClickHandler(currentitem);
         }
@@ -910,8 +974,15 @@ void seats(int Seats_Needed)
     clrscr();
     _setcursortype(_NOCURSOR);
     delete menu[currentmenu];
+    flushall();
     currentmenu=5;
-    
+    bool manualmode = false;
+    cout<<"Do you want to select seats manually?(y/n)";
+    if(tolower(getch())=='y')
+    {
+        manualmode = true;
+    }
+    clrscr();
     TextBox *pNext = new TextBox(72,23,8,1,"NEXT",0,CYAN,2,welcome);
     TextBox *pBack = new TextBox(1,23,8,1,"BACK",0,CYAN,3,CustomerHome);
     window(1,1,80,25);
@@ -919,7 +990,7 @@ void seats(int Seats_Needed)
     menu[currentmenu]->AddItem(pNext);
     menu[currentmenu]->AddItem(pBack);
     menu[currentmenu]->Draw(); 
-    int i=0,j=0,k=0,Max_Seats=25,a,l=0;
+    int i=0,j=0,k=0,a,l=0,seats_selected=0;
     
     // for(j=0;j<25;j++)
     // {
@@ -942,12 +1013,16 @@ void seats(int Seats_Needed)
     
     i = 0;
     seat[0]->Highlight();
-    for(j=i;j<i+Seats_Needed&&j<25;j++)
-    {
-        seat[j]->Draw(LIGHTGREEN);    
+    if(manualmode)
+        seat[i]->Draw(LIGHTGREEN);
+    else{
+        for(j=i;j<i+Seats_Needed&&j<25;j++)
+        {
+            seat[j]->Draw(LIGHTGREEN);    
+        }
+        seat[i]->Highlight();
     }
-    seat[i]->Highlight();
-    
+
     do{
         int a = getch();
         
@@ -963,13 +1038,16 @@ void seats(int Seats_Needed)
                         if(i<24){
                             for(j=0;j<25;j++)
                             {
-                                seat[j]->Select=false;
+                                //seat[j]->Select=false;
                                 seat[j]->Draw();
                             }
                             seat[++i]->Highlight();
-                            for(j=i;j<i+Seats_Needed&&j<25;j++)
-                            {
-                                seat[j]->Draw(LIGHTGREEN);
+                            seat[i]->Draw(LIGHTGREEN);
+                            if(!manualmode){
+                                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                                {
+                                    seat[j]->Draw(LIGHTGREEN);
+                                }
                             }
                             seat[i]->Highlight();
                         }
@@ -980,13 +1058,16 @@ void seats(int Seats_Needed)
                         if(i>0){
                             for(j=0;j<25;j++)
                             {
-                                seat[j]->Select=false;
+                                //seat[j]->Select=false;
                                 seat[j]->Draw();
                             }
                             seat[--i]->Highlight();
-                            for(j=i;j<i+Seats_Needed&&j<25;j++)
-                            {
-                                seat[j]->Draw(LIGHTGREEN);    
+                            seat[i]->Draw(LIGHTGREEN);
+                            if(!manualmode){
+                                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                                {
+                                    seat[j]->Draw(LIGHTGREEN);
+                                }
                             }
                             seat[i]->Highlight();
                         }
@@ -998,15 +1079,17 @@ void seats(int Seats_Needed)
                         {
                             for(j=0;j<25;j++)
                             {
-                                seat[j]->Select=false;
+                                //seat[j]->Select=false;
                                 seat[j]->Draw();
                             }
                             i-=5;
                             seat[i]->Highlight();
-                            for(j=i;j<i+Seats_Needed&&j<25;j++)
-                            {
-                                seat[j]->Draw(LIGHTGREEN);
-                                
+                            seat[i]->Draw(LIGHTGREEN);
+                            if(!manualmode){
+                                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                                {
+                                    seat[j]->Draw(LIGHTGREEN);
+                                }
                             }
                             seat[i]->Highlight();
                         }
@@ -1018,14 +1101,17 @@ void seats(int Seats_Needed)
                         {
                             for(j=0;j<25;j++)
                             {
-                                seat[j]->Select=false;
+                                //seat[j]->Select=false;
                                 seat[j]->Draw();
                             }
                             i+=5;
                             seat[i]->Highlight(); 
-                            for(j=i;j<i+Seats_Needed&&j<25;j++)
-                            {
-                                seat[j]->Draw(LIGHTGREEN);    
+                            seat[i]->Draw(LIGHTGREEN);
+                            if(!manualmode){
+                                for(j=i;j<i+Seats_Needed&&j<25;j++)
+                                {
+                                    seat[j]->Draw(LIGHTGREEN);
+                                }
                             }
                             seat[i]->Highlight();
                         }
@@ -1036,47 +1122,87 @@ void seats(int Seats_Needed)
             break;
             case ENTER:
             {
-                for(j=i;j<i+Seats_Needed&&j<25;j++)
-                {
-                    if(!(seat[j]->Occupied))
-                    {
-                        seat[j]->Select=true;
-                        seat[j]->Draw();
-                    }
-                }
-                window(20,24,50,25);
-                clrscr();
-                gotoxy(1,1);
-                cprintf("Do you want to continue(y/n)");
-                if(tolower(getch())=='y')
+                if(!manualmode)
                 {
                     for(j=i;j<i+Seats_Needed&&j<25;j++)
                     {
-                        seat[j]->Occupied=true;
-                        seat[j]->Select=false;
-                        seat[j]->Draw();
+                        if(!(seat[j]->Occupied))
+                        {
+                            seat[j]->Select=true;
+                            seat[j]->Draw();
+                        }
                     }
                     window(20,24,50,25);
                     clrscr();
-                    window(1,1,80,25);
-                    l=1;
-                    break;
+                    gotoxy(1,1);
+                    cprintf("Do you want to continue(y/n)");
+                    if(tolower(getch())=='y')
+                    {
+                        for(j=i;j<i+Seats_Needed&&j<25;j++)
+                        {
+                            seat[j]->Occupied=true;
+                            seat[j]->Select=false;
+                            seat[j]->Draw();
+                        }
+                        window(20,24,50,25);
+                        clrscr();
+                        window(1,1,80,25);
+                        l=1;
+                        break;
+                    }
+                    else{
+                        window(1,1,80,25);
+                        clrscr();
+                        for(j=i;j<i+Seats_Needed&&j<25;j++)
+                        {
+                            seat[j]->Select=false;
+                        }
+                        EnterSeats();
+                    }
                 }
-                else{
-                    window(1,1,80,25);
+                else{           //MANUAL MODE
+                    if(seats_selected!=Seats_Needed)
+                    {
+                        if(!(seat[i]->Occupied))
+                        {
+                            seat[i]->Select=true;
+                            seat[i]->Draw();
+                            seats_selected++;
+                        }    
+                    }
+                    else{
+                        window(20,24,50,25);
                     clrscr();
-                    for(j=0;j<25;j++)
-                    // {
-                    //     seat[j]->Select=false;
-                    //     seat[j]->Draw();
-                    // }
-                    // for(j=i;j<i+4&&j<25;j++)
-                    // {
-                    //     seat[j]->Select=true;
-                    //     seat[j]->Draw();
-                    // }
-                    EnterSeats();
+                    gotoxy(1,1);
+                    cprintf("Do you want to continue(y/n)");
+                    if(tolower(getch())=='y')
+                    {
+                        for(j=0;j<25;j++)
+                        {
+                            if(seat[j]->Select==true)
+                            {
+                                seat[j]->Occupied=true;
+                                seat[j]->Select=false;
+                                seat[j]->Draw();
+                            }                           
+                        }
+                        window(20,24,50,25);
+                        clrscr();
+                        window(1,1,80,25);
+                        l=1;
+                        break;
+                    }
+                    else{
+                        window(1,1,80,25);
+                        clrscr();
+                        for(j=0;j<25;j++)
+                        {
+                            seat[j]->Select=false;
+                        }
+                        EnterSeats();
+                    }
                 }
+            }
             }
             break;
             case 27:
@@ -1119,6 +1245,7 @@ void main()
         for(q = 0;q<5;q++)
             {
                 seat[p] = new Seat(20+(10*q),5+r,YELLOW,GREEN,p);
+                seat[p]->Occupied= false;
                 p++;
             }
         r+=4;
@@ -1128,5 +1255,9 @@ void main()
     for(p =0;p<25;p++)
     {
         delete seat[p];
+    }
+    for(p=0;p<10;p++)
+    {
+        delete menu[p];
     }
 }
