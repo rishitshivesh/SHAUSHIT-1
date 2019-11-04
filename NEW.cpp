@@ -14,15 +14,13 @@ const int LEFT = 75;
 const int RIGHT = 77;
 const int ENTER = 13;
 const int Exit = 404;
-int Max_Seats=25;
-enum bool{false,true};
-enum BUTTON{MOUSE_NORMAL = 0,MOUSE_LBUTTON=1,MOUSE_RBUTTON=2,MOUSE_MBUTTON=4};  	
-bool IsMenuClick = false;
-bool IsMenuBarCreated=false;
-bool IsPressed = false;
+
+int Max_Seats=25; 	
 int currentitem = 0;
 int currentmenu = 0;
 int TotalMenus=-1;
+
+enum bool{false,true};
 bool Admin_LoggedIn = false;
 bool Customer_LoggedIn = false;
 
@@ -35,13 +33,13 @@ void CustomerHome();
 void AdminLogin();
 void AdminSignUp();
 void AdminHome();
+void Theatre_Settings();
+void Movie_Settings();
 void about();
 void Default(){return;}
 int Seats_Occupied();
 void EnterSeats();
 void seats(int Seats_Needed);
-void del()
-{}
 int CheckFile(char *username,char *password);
 int AdminCheckID(char *username,char *password);
 
@@ -255,13 +253,16 @@ void TextBox::Highlight(char a)
         int ch;
         int len=strlen(Caption),curpos,curx;
         curpos=len;
-        //if(getch()==13){
+
+        // if(getch()==13){
+        //     Clear();
         do{
             curx=X+strlen(Caption)+2;
             gotoxy(curx,Y+(Height%2));
             _setcursortype(_NORMALCURSOR);
             ch=getch();
-            if(ch==0) ch=getch();
+            // if(ch==0)
+            // { ch=getch();
             switch (ch)
             {
                 case 8: //backspace
@@ -274,6 +275,7 @@ void TextBox::Highlight(char a)
                     }
                 break;
             }
+            //}//if(ch==0) ended
             if(isprint(ch))
             {
                 Caption[curpos]=ch;
@@ -828,18 +830,39 @@ void AdminHome()
     delete menu[currentmenu];
     flushall();
     currentmenu=3;
-    TextBox *Movie_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,Default);
-    TextBox *Theatre_Settings = new TextBox(25,8,30,1,"Theatre Settings",0,YELLOW,1,Default);
-    TextBox *pNext = new TextBox(50,12,20,1,"NEXT",0,CYAN,2,welcome);
-    TextBox *pBack = new TextBox(10,12,20,1,"BACK",0,CYAN,3,AdminLogin);
+    TextBox *M_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,Movie_Settings);
+    TextBox *T_Settings = new TextBox(25,8,30,1,"Theatre Settings",0,YELLOW,1,Theatre_Settings);
+    TextBox *pAbout = new TextBox(25,11,30,1,"ABOUT",0,CYAN,2,welcome);
+    TextBox *pBack = new TextBox(1,23,20,1,"BACK",0,CYAN,3,AdminLogin);
     menu[currentmenu]= new Menu(3,"Hello Motu Admin");
-    menu[currentmenu]->AddItem(Movie_Settings);
-    menu[currentmenu]->AddItem(Theatre_Settings);
-    menu[currentmenu]->AddItem(pNext);
+    menu[currentmenu]->AddItem(M_Settings);
+    menu[currentmenu]->AddItem(T_Settings);
+    menu[currentmenu]->AddItem(pAbout);
     menu[currentmenu]->AddItem(pBack);
     menu[currentitem]->Draw();
     switch(Navigate())
     {
+        case 3:
+        {
+                window(20,24,50,25);
+                clrscr();
+                gotoxy(1,1);
+                cprintf("Do you want to LOG OUT(y/n)");
+                if(tolower(getch())=='y')
+                {
+                    window(20,24,50,25);
+                    clrscr();
+                    window(1,1,80,25);
+                    Admin_LoggedIn=false;
+                    menu[currentmenu]->EnableClickHandler(currentitem);
+                    break;
+                }
+                else{
+                    window(1,1,80,25);
+                    AdminHome();
+                } 
+        }
+        break;
         default:
             menu[currentmenu]->EnableClickHandler(currentitem);
         break;
@@ -894,6 +917,34 @@ void CustomerHome()
         break;
     }
     //getch();
+
+}
+void Movie_Settings()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    flushall();
+    currentmenu=4;
+    textcolor(GREEN);
+    gotoxy(1,4);
+    cprintf("%s","Movie 1 :");
+    gotoxy(11,4);
+    cprintf("%s","NAME");
+    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,3,AdminHome);
+    menu[currentmenu]= new Menu(4,"Movie Settings");
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw();
+    switch(Navigate())
+    {
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
+
+}
+void Theatre_Settings()
+{
 
 }
 void chkadmin()
