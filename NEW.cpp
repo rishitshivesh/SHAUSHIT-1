@@ -929,10 +929,24 @@ void Movie_Settings()
     textcolor(GREEN);
     gotoxy(1,4);
     cprintf("%s","Movie 1 :");
-    gotoxy(11,4);
+    gotoxy(25,4);
     cprintf("%s","NAME");
+    TextBox *pName = new TextBox(11,5,50,1,"NAME",0,YELLOW,0,Default);
+    pName->SetReadOnly(false);
+    gotoxy(11,8);
+    cprintf("%s","Timings");
+    TextBox *pTime = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,Default);
+    pTime->SetReadOnly(false);
+    gotoxy(24,8);
+    cprintf("%s","Price");
+    TextBox *pPrice = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,Default);
+    pPrice->SetReadOnly(false);
+
     TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,3,AdminHome);
     menu[currentmenu]= new Menu(4,"Movie Settings");
+    menu[currentmenu]->AddItem(pName);
+    menu[currentmenu]->AddItem(pPrice);
+    menu[currentmenu]->AddItem(pTime);
     menu[currentmenu]->AddItem(pBack);
     menu[currentmenu]->Draw();
     switch(Navigate())
