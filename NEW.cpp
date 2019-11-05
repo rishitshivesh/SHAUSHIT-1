@@ -46,13 +46,15 @@ int AdminCheckID(char *username,char *password);
 class MOVIE
 {
     public:
-    char MovieName[50],Timing[5];
+    char Mn[80],Timing[5];
     float Price;
-    char* Mn()
-    {return MovieName;}
+    char* MovieName();
 
 };
-
+char *MOVIE::MovieName()
+{
+    return Mn;
+}
 class CUSTOMER
 {
     char Password[50];
@@ -832,17 +834,19 @@ void AdminHome()
     currentmenu=3;
     TextBox *M_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,Movie_Settings);
     TextBox *T_Settings = new TextBox(25,8,30,1,"Theatre Settings",0,YELLOW,1,Theatre_Settings);
-    TextBox *pAbout = new TextBox(25,11,30,1,"ABOUT",0,CYAN,2,welcome);
-    TextBox *pBack = new TextBox(1,23,20,1,"BACK",0,CYAN,3,AdminLogin);
+    TextBox *D_Settings = new TextBox(25,11,30,1,"Database Settings",0,YELLOW,2,Theatre_Settings);
+    TextBox *pAbout = new TextBox(25,14,30,1,"ABOUT",0,CYAN,3,welcome);
+    TextBox *pBack = new TextBox(1,23,20,1,"BACK",0,CYAN,4,AdminLogin);
     menu[currentmenu]= new Menu(3,"Hello Motu Admin");
     menu[currentmenu]->AddItem(M_Settings);
     menu[currentmenu]->AddItem(T_Settings);
+    menu[currentmenu]->AddItem(D_Settings);
     menu[currentmenu]->AddItem(pAbout);
     menu[currentmenu]->AddItem(pBack);
     menu[currentitem]->Draw();
     switch(Navigate())
     {
-        case 3:
+        case 4:
         {
                 window(20,24,50,25);
                 clrscr();
@@ -931,26 +935,73 @@ void Movie_Settings()
     cprintf("%s","Movie 1 :");
     gotoxy(25,4);
     cprintf("%s","NAME");
-    TextBox *pName = new TextBox(11,5,50,1,"NAME",0,YELLOW,0,Default);
-    pName->SetReadOnly(false);
+    TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
+    pName1->SetReadOnly(false);
     gotoxy(11,8);
     cprintf("%s","Timings");
-    TextBox *pTime = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,Default);
-    pTime->SetReadOnly(false);
+    TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
+    pTime1->SetReadOnly(false);
     gotoxy(24,8);
     cprintf("%s","Price");
-    TextBox *pPrice = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,Default);
-    pPrice->SetReadOnly(false);
+    TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
+    pPrice1->SetReadOnly(false);
+    gotoxy(1,13);
+    cprintf("%s","Movie 2 :");
+    gotoxy(25,13);
+    cprintf("%s","NAME");
+    TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
+    pName2->SetReadOnly(false);
+    gotoxy(11,17);
+    cprintf("%s","Timings");
+    TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
+    pTime2->SetReadOnly(false); 
+    gotoxy(24,17);
+    cprintf("%s","Price");
+    TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
+    pPrice2->SetReadOnly(false);
 
-    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,3,AdminHome);
+    TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
+    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
+
     menu[currentmenu]= new Menu(4,"Movie Settings");
-    menu[currentmenu]->AddItem(pName);
-    menu[currentmenu]->AddItem(pPrice);
-    menu[currentmenu]->AddItem(pTime);
+    menu[currentmenu]->AddItem(pName1);
+    menu[currentmenu]->AddItem(pPrice1);
+    menu[currentmenu]->AddItem(pTime1);
+    menu[currentmenu]->AddItem(pName2);
+    menu[currentmenu]->AddItem(pPrice2);
+    menu[currentmenu]->AddItem(pTime2);
+    menu[currentmenu]->AddItem(pSubmit);
     menu[currentmenu]->AddItem(pBack);
     menu[currentmenu]->Draw();
+    MOVIE movie,temp;
+    fstream fil;
+    fil.open("movie.dat",ios::binary|ios::out|ios::in);
     switch(Navigate())
     {
+        case 3:
+            strcpy(movie.Mn,pName1->GetText());
+            strcpy(movie.Timing,pTime1->GetText());
+            movie.Price=atof(pPrice1->GetText());
+            while(fil.read((char*)&temp,sizeof(temp)))
+            {
+                if(temp.Mn==movie.Mn)
+                {
+                    int pos = -1 * sizeof(temp);
+                    fil.seekp(pos, ios::cur);
+                    fil.write((char *)&movie,sizeof(movie));
+                    fil.close();
+                    menu[currentmenu]->EnableClickHandler(currentitem);
+                    //return;
+                }
+                else{
+                    fil.write((char *)&movie,sizeof(movie));
+                    fil.close();
+                }
+            }
+            fil.write((char *)&movie,sizeof(movie));
+            fil.close();
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
         default:
             menu[currentmenu]->EnableClickHandler(currentitem);
         break;
