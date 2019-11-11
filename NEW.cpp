@@ -975,7 +975,7 @@ void Movie_Settings()
     menu[currentmenu]->Draw();
     MOVIE movie,temp;
     fstream fil;
-    fil.open("movie.dat",ios::binary|ios::out|ios::in);
+    fil.open("movie.dat",ios::binary|ios::app|ios::in);
     switch(Navigate())
     {
         case 3:
