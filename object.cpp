@@ -23,7 +23,7 @@ int TotalMenus=-1;
 enum bool{false,true};
 bool Admin_LoggedIn = false;
 bool Customer_LoggedIn = false;
-
+bool debug_mode = true;;
 int Navigate();
 void welcome();
 void Customerlogin();
@@ -121,7 +121,7 @@ int AdminCheckID(char *username,char *password=" ")
     ADMIN Admin;
     fstream fil;
     int exists=0;
-    fil.open("admin.dat",ios::binary|ios::in);
+    fil.open("admintext.dat",ios::binary|ios::in);
     while(fil.read((char *)&Admin,sizeof(Admin)))
     {
         if(strcmp(Admin.Username,username)==0&&Admin.CheckPassword(password))
@@ -447,8 +447,11 @@ public:
             delete menubar;
             for(int i = 0;i<itemnumber;i++)
                 delete textbox[i];
-            //delete this;
-
+            if(debug_mode)
+            {
+                cout<<Caption<<"deleted";
+                getch();
+            }
         }
 };
 void Menu::Drawbox(int l,int b,int x ,int y,char text[])
@@ -594,7 +597,7 @@ int Navigate(Menu menu)
             //     return (int)a;
             // break;
         }// switch a ends
-    }while(a!='x');
+    }while(a!='b');
 }
 void welcome()
 {
@@ -823,12 +826,12 @@ void AdminHome()
 {
     clrscr();
     _setcursortype(_NOCURSOR);
-    TextBox *M_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,welcome);
+    TextBox *M_Settings = new TextBox(25,5,30,1,"Movie Settings",0,YELLOW,0,Movie_Settings);
     TextBox *T_Settings = new TextBox(25,8,30,1,"Theatre Settings",0,YELLOW,1,welcome);
-    TextBox *D_Settings = new TextBox(25,11,30,1,"Database Settings",0,YELLOW,2,welcome);
+    TextBox *D_Settings = new TextBox(25,11,30,1,"Database Settings",0,YELLOW,2,Database_Settings);
     TextBox *pAbout = new TextBox(25,14,30,1,"ABOUT",0,CYAN,3,welcome);
     TextBox *pBack = new TextBox(1,23,20,1,"BACK",0,CYAN,4,AdminLogin);
-    Menu mAdminHome(3,"Hello Motu Admin");
+    Menu mAdminHome(3,"Hello Admin");
     mAdminHome.AddItem(M_Settings);
     mAdminHome.AddItem(T_Settings);
     mAdminHome.AddItem(D_Settings);
@@ -911,168 +914,213 @@ void CustomerHome()
     //getch();
 
 }
-// void Movie_Settings()
-// {
-//     clrscr();
-//     _setcursortype(_NOCURSOR);
-//     delete menu[currentmenu];
-//     flushall();
-//     currentmenu=4;
-//     textcolor(GREEN);
-//     gotoxy(1,4);
-//     cprintf("%s","Movie 1 :");
-//     gotoxy(25,4);
-//     cprintf("%s","NAME");
-//     TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
-//     pName1.SetReadOnly(false);
-//     gotoxy(11,8);
-//     cprintf("%s","Timings");
-//     TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
-//     pTime1.SetReadOnly(false);
-//     gotoxy(24,8);
-//     cprintf("%s","Price");
-//     TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
-//     pPrice1.SetReadOnly(false);
-//     gotoxy(1,13);
-//     cprintf("%s","Movie 2 :");
-//     gotoxy(25,13);
-//     cprintf("%s","NAME");
-//     TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
-//     pName2.SetReadOnly(false);
-//     gotoxy(11,17);
-//     cprintf("%s","Timings");
-//     TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
-//     pTime2.SetReadOnly(false); 
-//     gotoxy(24,17);
-//     cprintf("%s","Price");
-//     TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
-//     pPrice2.SetReadOnly(false);
+void Movie_Settings()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    textcolor(GREEN);
+    gotoxy(1,4);
+    cprintf("%s","Movie 1 :");
+    gotoxy(25,4);
+    cprintf("%s","NAME");
+    TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
+    pName1->SetReadOnly(false);
+    gotoxy(11,8);
+    cprintf("%s","Timings");
+    TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
+    pTime1->SetReadOnly(false);
+    gotoxy(24,8);
+    cprintf("%s","Price");
+    TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
+    pPrice1->SetReadOnly(false);
+    gotoxy(1,13);
+    cprintf("%s","Movie 2 :");
+    gotoxy(25,13);
+    cprintf("%s","NAME");
+    TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
+    pName2->SetReadOnly(false);
+    gotoxy(11,17);
+    cprintf("%s","Timings");
+    TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
+    pTime2->SetReadOnly(false); 
+    gotoxy(24,17);
+    cprintf("%s","Price");
+    TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
+    pPrice2->SetReadOnly(false);
 
-//     TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
-//     TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
+    TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
+    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
 
-//     menu[currentmenu]= new Menu(4,"Movie Settings");
-//     menu[currentmenu].AddItem(pName1);
-//     menu[currentmenu].AddItem(pPrice1);
-//     menu[currentmenu].AddItem(pTime1);
-//     menu[currentmenu].AddItem(pName2);
-//     menu[currentmenu].AddItem(pPrice2);
-//     menu[currentmenu].AddItem(pTime2);
-//     menu[currentmenu].AddItem(pSubmit);
-//     menu[currentmenu].AddItem(pBack);
-//     menu[currentmenu].Draw();
-//     MOVIE movie,temp;
-//     fstream fil;
-//     fil.open("movie.dat",ios::binary|ios::in|ios::out);
-//     switch(Navigate())
-//     {
-//         case 6:
-//             strcpy(movie.Mn,pName1.GetText());
-//             strcpy(movie.Timing,pTime1.GetText());
-//             movie.Price=atof(pPrice1.GetText());
-            
-//             while(fil.read((char*)&temp,sizeof(temp)))
-//             {
-//                 if(temp.Mn==movie.Mn)
-//                 {
-//                     int pos = (-1 * sizeof(temp));
-//                     fil.seekp(pos, ios::cur);
-//                     fil.write((char *)&movie,sizeof(movie)); 
-//                     //return;
-//                 }
-//                 // else{
-//                 //     fil.write((char *)&movie,sizeof(movie));
-//                 //     fil.close();
-//                 // }
-//             }
-//             fil.write((char *)&movie,sizeof(movie));
-//             fil.close();
-//             menu[currentmenu].EnableClickHandler(currentitem);
-//         break;
-//         default:
-//             menu[currentmenu].EnableClickHandler(currentitem);
-//         break;
-//     }
-
-// }
-// void Database_Settings()
-// {
-//     clrscr();
-//     _setcursortype(_NOCURSOR);
-//     delete menu[currentmenu];
-//     flushall();
-//     currentmenu=4;
-//     textcolor(GREEN);
-//     gotoxy(1,4);
-//     cprintf("%s","Movie 1 :");
-//     gotoxy(25,4);
-//     cprintf("%s","NAME");
-//     TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
-//     pName1.SetReadOnly(false);
-//     gotoxy(11,8);
-//     cprintf("%s","Timings");
-//     TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
-//     pTime1.SetReadOnly(false);
-//     gotoxy(24,8);
-//     cprintf("%s","Price");
-//     TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
-//     pPrice1.SetReadOnly(false);
-//     gotoxy(1,13);
-//     cprintf("%s","Movie 2 :");
-//     gotoxy(25,13);
-//     cprintf("%s","NAME");
-//     TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
-//     pName2.SetReadOnly(false);
-//     gotoxy(11,17);
-//     cprintf("%s","Timings");
-//     TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
-//     pTime2.SetReadOnly(false); 
-//     gotoxy(24,17);
-//     cprintf("%s","Price");
-//     TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
-//     pPrice2.SetReadOnly(false);
-
-//     TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
-//     TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
-
-//     menu[currentmenu]= new Menu(4,"Database Settings");
-//     menu[currentmenu].AddItem(pName1);
-//     menu[currentmenu].AddItem(pPrice1);
-//     menu[currentmenu].AddItem(pTime1);
-//     menu[currentmenu].AddItem(pName2);
-//     menu[currentmenu].AddItem(pPrice2);
-//     menu[currentmenu].AddItem(pTime2);
-//     menu[currentmenu].AddItem(pSubmit);
-//     menu[currentmenu].AddItem(pBack);
-//     menu[currentmenu].Draw();
-//     MOVIE movie;
-//     fstream fil;
-//     fil.open("movie.dat",ios::binary|ios::in|ios::app);
-//     switch(Navigate())
-//     {
-//         case 6:
-//             strcpy(movie.Mn,pName1.GetText());
-//             strcpy(movie.Timing,pTime1.GetText());
-//             movie.Price=atof(pPrice1.GetText());
-//             fil.write((char *)&movie,sizeof(movie));
-//             fil.close();
-//             AdminHome();
-//             //menu[currentmenu].EnableClickHandler(currentitem);
-//         break;
-//         case 7:
-//             //
-//             AdminHome();
-//         break;
-//         default:
-//             menu[currentmenu].EnableClickHandler(currentitem);
-//         break;
-//     }
+    Menu mMovie_Settings(4,"Movie Settings");
+    mMovie_Settings.AddItem(pName1);
+    mMovie_Settings.AddItem(pPrice1);
+    mMovie_Settings.AddItem(pTime1);
+    mMovie_Settings.AddItem(pName2);
+    mMovie_Settings.AddItem(pPrice2);
+    mMovie_Settings.AddItem(pTime2);
+    mMovie_Settings.AddItem(pSubmit);
+    mMovie_Settings.AddItem(pBack);
+    mMovie_Settings.Draw();
+    MOVIE movie1,movie2,temp;
+    int found1=0,found2=0;
+    fstream fild,fil1,fil2;
     
-// }
-// void Theatre_Settings()
-// {
+    switch(Navigate(mMovie_Settings))
+    {
+        case 6:
+            strcpy(movie1.Mn,pName1->GetText());
+            strcpy(movie1.Timing,pTime1->GetText());
+            movie1.Price=atof(pPrice1->GetText());
+            strcpy(movie2.Mn,pName2->GetText());
+            strcpy(movie2.Timing,pTime2->GetText());
+            movie2.Price=atof(pPrice2->GetText());
+            fild.open("database.dat",ios::binary|ios::in);
+            fil1.open("movie1.dat",ios::binary|ios::out);
+            fil2.open("movie2.dat",ios::binary|ios::out);
+            while(fild.read((char *)&temp,sizeof(temp)))
+            {
+                if(strcmpi(movie1.Mn,temp.Mn)==0)
+                    found1=1;
+                if(strcmpi(movie2.Mn,temp.Mn)==0)
+                    found2=1;
+            }
+            if(found1&&found2)
+            {
+                fil1.write((char *)&movie1,sizeof(movie1));
+                fil2.write((char *)&movie2,sizeof(movie2));
+            }
+            else if(found1 && !found2)
+            {
+                window(5,22,80,22);
+                gotoxy(1,1);
+                cout<<"Movie2 doesn't exists. Enter new movie in Database Settings. press Enter";
+                getch();
+                window(1,1,80,25);
+            }
+            else if(found2 && !found1)
+            {
+                window(5,22,80,22);
+                gotoxy(1,1);
+                cout<<"Movie1 doesn't exists. Enter new movie in Database Settings. press Enter";
+                getch();
+                window(1,1,80,25);
+            }
+            else{
+                window(5,22,80,22);
+                gotoxy(1,1);
+                cout<<"Movies dont exist. Enter new movie in Database Settings. press Enter";
+                getch();
+                window(1,1,80,25);
+            }
+            
+            fild.close();
+            fil1.close();
+            fil2.close();
+            AdminHome();
+            //menu[currentmenu].EnableClickHandler(currentitem);
+        break;
+        case 7:
+            //
+            AdminHome();
+        break;
+        default:
+            mMovie_Settings.EnableClickHandler(currentitem);
+        break;
+    }
+}
+void Database_Settings()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    textcolor(GREEN);
+    gotoxy(1,4);
+    cprintf("%s","Movie 1 :");
+    gotoxy(25,4);
+    cprintf("%s","NAME");
+    TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
+    pName1->SetReadOnly(false);
+    gotoxy(11,8);
+    cprintf("%s","Timings");
+    TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
+    pTime1->SetReadOnly(false);
+    gotoxy(24,8);
+    cprintf("%s","Price");
+    TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
+    pPrice1->SetReadOnly(false);
+    // gotoxy(1,13);
+    // cprintf("%s","Movie 2 :");
+    // gotoxy(25,13);
+    // cprintf("%s","NAME");
+    // TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
+    // pName2->SetReadOnly(false);
+    // gotoxy(11,17);
+    // cprintf("%s","Timings");
+    // TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
+    // pTime2->SetReadOnly(false); 
+    // gotoxy(24,17);
+    // cprintf("%s","Price");
+    // TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
+    // pPrice2->SetReadOnly(false);
 
-// }
+    TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
+    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
+
+    Menu mDatabase_Settings(4,"Database Settings");
+    mDatabase_Settings.AddItem(pName1);
+    mDatabase_Settings.AddItem(pPrice1);
+    mDatabase_Settings.AddItem(pTime1);
+    //mDatabase_Settings.AddItem(pName2);
+    // mDatabase_Settings.AddItem(pPrice2);
+    // mDatabase_Settings.AddItem(pTime2);
+    mDatabase_Settings.AddItem(pSubmit);
+    mDatabase_Settings.AddItem(pBack);
+    mDatabase_Settings.Draw();
+    MOVIE movie,temp;
+    int found = 0;
+    fstream fil;
+    
+    switch(Navigate(mDatabase_Settings))
+    {
+        case 6:
+            strcpy(movie.Mn,pName1->GetText());
+            strcpy(movie.Timing,pTime1->GetText());
+            movie.Price=atof(pPrice1->GetText());
+            fil.open("database.dat",ios::binary|ios::in);
+            while(!found && fil.read((char *)&temp,sizeof(temp)))
+            {
+                if(strcmpi(movie.Mn,temp.Mn)==0)
+                    found=1;
+            }
+            fil.close();
+            fil.open("database.dat",ios::binary|ios::app);
+            if(!found)
+                fil.write((char *)&movie,sizeof(movie));
+            else{
+                window(20,15,50,15);
+                gotoxy(1,1);
+                cout<<"Movie already exists. Press enter";
+                getch();
+                clrscr();
+                window(1,1,80,25);
+            }
+            fil.close();
+            AdminHome();
+            //menu[currentmenu].EnableClickHandler(currentitem);
+        break;
+        case 7:
+            //
+            AdminHome();
+        break;
+        default:
+            mDatabase_Settings.EnableClickHandler(currentitem);
+        break;
+    }
+    
+}
+void Theatre_Settings()
+{
+
+}
 void chkadmin()
 {
     fstream fil;
@@ -1425,4 +1473,7 @@ void main()
     {
         delete seat[p];
     }
+    clrscr();
+    cout<<"ended";
+    getch();
 }
