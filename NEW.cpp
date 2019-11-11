@@ -34,6 +34,7 @@ void AdminLogin();
 void AdminSignUp();
 void AdminHome();
 void Theatre_Settings();
+void Database_Settings();
 void Movie_Settings();
 void about();
 void Default(){return;}
@@ -554,7 +555,7 @@ Menu *menu[30];
 int Navigate()
 {
     char a,b;
-    
+    int p;
     do
     {
         a=getch();
@@ -587,11 +588,11 @@ int Navigate()
             }
             break;
             case 'x':
-                exit(0);
+            exit(0);
             break;
-            default:
-                return (int)a;
-            break;
+            // default:
+            //     return (int)a;
+            // break;
         }// switch a ends
     }while(a!='x');
 }
@@ -975,28 +976,27 @@ void Movie_Settings()
     menu[currentmenu]->Draw();
     MOVIE movie,temp;
     fstream fil;
-    fil.open("movie.dat",ios::binary|ios::out|ios::in);
+    fil.open("movie.dat",ios::binary|ios::in|ios::out);
     switch(Navigate())
     {
-        case 3:
+        case 6:
             strcpy(movie.Mn,pName1->GetText());
             strcpy(movie.Timing,pTime1->GetText());
             movie.Price=atof(pPrice1->GetText());
+            
             while(fil.read((char*)&temp,sizeof(temp)))
             {
                 if(temp.Mn==movie.Mn)
                 {
-                    int pos = -1 * sizeof(temp);
+                    int pos = (-1 * sizeof(temp));
                     fil.seekp(pos, ios::cur);
-                    fil.write((char *)&movie,sizeof(movie));
-                    fil.close();
-                    menu[currentmenu]->EnableClickHandler(currentitem);
+                    fil.write((char *)&movie,sizeof(movie)); 
                     //return;
                 }
-                else{
-                    fil.write((char *)&movie,sizeof(movie));
-                    fil.close();
-                }
+                // else{
+                //     fil.write((char *)&movie,sizeof(movie));
+                //     fil.close();
+                // }
             }
             fil.write((char *)&movie,sizeof(movie));
             fil.close();
@@ -1007,6 +1007,80 @@ void Movie_Settings()
         break;
     }
 
+}
+void Database_Settings()
+{
+    clrscr();
+    _setcursortype(_NOCURSOR);
+    delete menu[currentmenu];
+    flushall();
+    currentmenu=4;
+    textcolor(GREEN);
+    gotoxy(1,4);
+    cprintf("%s","Movie 1 :");
+    gotoxy(25,4);
+    cprintf("%s","NAME");
+    TextBox *pName1 = new TextBox(11,5,68,1,"NAME",0,YELLOW,0,welcome);
+    pName1->SetReadOnly(false);
+    gotoxy(11,8);
+    cprintf("%s","Timings");
+    TextBox *pTime1 = new TextBox(11,9,10,1,"TIME",0,YELLOW,1,welcome);
+    pTime1->SetReadOnly(false);
+    gotoxy(24,8);
+    cprintf("%s","Price");
+    TextBox *pPrice1 = new TextBox(24,9,10,1,"PRICE",0,YELLOW,2,welcome);
+    pPrice1->SetReadOnly(false);
+    gotoxy(1,13);
+    cprintf("%s","Movie 2 :");
+    gotoxy(25,13);
+    cprintf("%s","NAME");
+    TextBox *pName2 = new TextBox(11,14,68,1,"NAME",0,YELLOW,3,welcome);
+    pName2->SetReadOnly(false);
+    gotoxy(11,17);
+    cprintf("%s","Timings");
+    TextBox *pTime2 = new TextBox(11,18,10,1,"TIME",0,YELLOW,4,welcome);
+    pTime2->SetReadOnly(false); 
+    gotoxy(24,17);
+    cprintf("%s","Price");
+    TextBox *pPrice2 = new TextBox(24,18,10,1,"PRICE",0,YELLOW,5,welcome);
+    pPrice2->SetReadOnly(false);
+
+    TextBox *pSubmit = new TextBox(50,23,20,1,"SUBMIT",0,CYAN,6,AdminHome);
+    TextBox *pBack = new TextBox(10,23,20,1,"BACK",0,CYAN,7,AdminHome);
+
+    menu[currentmenu]= new Menu(4,"Database Settings");
+    menu[currentmenu]->AddItem(pName1);
+    menu[currentmenu]->AddItem(pPrice1);
+    menu[currentmenu]->AddItem(pTime1);
+    menu[currentmenu]->AddItem(pName2);
+    menu[currentmenu]->AddItem(pPrice2);
+    menu[currentmenu]->AddItem(pTime2);
+    menu[currentmenu]->AddItem(pSubmit);
+    menu[currentmenu]->AddItem(pBack);
+    menu[currentmenu]->Draw();
+    MOVIE movie;
+    fstream fil;
+    fil.open("movie.dat",ios::binary|ios::in|ios::app);
+    switch(Navigate())
+    {
+        case 6:
+            strcpy(movie.Mn,pName1->GetText());
+            strcpy(movie.Timing,pTime1->GetText());
+            movie.Price=atof(pPrice1->GetText());
+            fil.write((char *)&movie,sizeof(movie));
+            fil.close();
+            AdminHome();
+            //menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+        case 7:
+            //
+            AdminHome();
+        break;
+        default:
+            menu[currentmenu]->EnableClickHandler(currentitem);
+        break;
+    }
+    
 }
 void Theatre_Settings()
 {
