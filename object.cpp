@@ -960,11 +960,27 @@ void Movie_Settings()
     mMovie_Settings.AddItem(pTime2);
     mMovie_Settings.AddItem(pSubmit);
     mMovie_Settings.AddItem(pBack);
-    mMovie_Settings.Draw();
+    
     MOVIE movie1,movie2,temp;
     int found1=0,found2=0;
     fstream fild,fil1,fil2;
-    
+    fil1.open("movie1.dat",ios::binary|ios::in);
+    while(fil1.read((char *)&temp,sizeof(temp)))
+    {
+        pName1->Clear();
+        pPrice1->Clear();
+    }
+    fil1.close();
+    fil2.open("movie2.dat",ios::binary|ios::in);
+    while(fil2.read((char *)&temp,sizeof(temp)))
+    {
+        pName2->Clear();
+        pName2->SetText(temp.Mn);
+    }
+    fil2.close();
+
+    mMovie_Settings.Draw();
+
     switch(Navigate(mMovie_Settings))
     {
         case 6:
