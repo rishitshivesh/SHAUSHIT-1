@@ -362,24 +362,33 @@ struct THEATRE
 /*****************************************SEAT***************************************************************/
 class Seat
 {
-    int X,Y,Color,SColor;
+    int X,Y,Color,SColor,I;
+    char A;
 public:
     int ID;
+    char name[3];
     bool Select;
     bool Occupied;
-    Seat(int x, int y,int color=YELLOW,int scolor = GREEN, int Id = 0);
+    Seat(int x, int y,int color=YELLOW,int scolor = GREEN, int Id = 0,char a ='A',int i=1);
     void Draw(int color = YELLOW);
     void Highlight(); 
 };
-void Seat::Seat(int x, int y,int color,int scolor, int Id)
+void Seat::Seat(int x, int y,int color,int scolor, int Id,char a,int i)
 {
     X=x;
     Y=y;
     ID=Id;
     Color = color;
     SColor = scolor;
+    I=i;
+    A=a;
     Select=false;
     Occupied = false;
+    name[0]=A;
+    char b[10];
+    itoa(I,b,10);
+    name[1]=b[0];
+    //strcat(name,b);
 }
 void Seat::Draw(int color)
 {
@@ -1472,18 +1481,28 @@ void seats(int Seats_Needed)
 }
 void main()
 {
-     int p=0,q=0,r=0;
+     int p=0,q=0,r=0,i=1;
+     char a='A';
+
     while(p<25)
     {
         for(q = 0;q<5;q++)
             {
-                seat[p] = new Seat(20+(10*q),5+r,YELLOW,GREEN,p);
+                seat[p] = new Seat(20+(10*q),5+r,YELLOW,GREEN,p,a,i);
                 seat[p]->Occupied= false;
                 p++;
+                i++;
             }
         r+=4;
+        a++;
+        i=1;
     }
-    chkadmin();
+    for(p =0;p<25;p++)
+    {
+        puts(seat[p]->name);
+    }
+    getch();
+    //chkadmin();
     //EnterSeats();
     for(p =0;p<25;p++)
     {
