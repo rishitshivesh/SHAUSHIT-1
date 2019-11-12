@@ -60,16 +60,22 @@ class CUSTOMER
 {
     char Password[50];
 public:
+    CUSTOMER();
     char Username[50];
     char Name[50], EMail[25];
     char Phone[10];
-
+    int myseats[25];
     //CUSTOMER(char *user,char *pass);
     void inputdata(char *name, char *username,char *password, char *email, char *phone);
     int CheckPassword(char *password);
 
  
 };
+CUSTOMER::CUSTOMER()
+{
+    for(int i =0;i<25;i++)
+        myseats[i]=0;
+}
 int CUSTOMER::CheckPassword(char *password)
 {
     if(strcmp(Password,password)==0)
@@ -86,7 +92,7 @@ void CUSTOMER::inputdata(char *name, char *username,char *password, char *email,
     strcpy(EMail,email);
     strcpy(Phone,phone);
 }
-
+CUSTOMER current_customer;
 class ADMIN
 {
     char Password[50];
@@ -771,6 +777,15 @@ void Customerlogin()
             if(CheckFile(pUsername->GetText(),pPassword->GetText())==1)
             {
                 Customer_LoggedIn =true;
+                fstream fil;
+                CUSTOMER temp;
+                fil.open("customer.dat",ios::binary|ios::in);
+                while(fil.read((char *)&temp,sizeof(temp)))
+                {
+                    current_customer.inputdata(temp.Name,temp.Username,"",temp.EMail,temp.Phone);
+                }
+
+                fil.close();
                 CustomerHome();
                 
             }
@@ -1385,6 +1400,7 @@ void seats(int Seats_Needed)
                             seat[j]->Occupied=true;
                             seat[j]->Select=false;
                             seat[j]->Draw();
+                            current_customer.myseats[j] = 1;
                         }
                         window(20,24,50,25);
                         clrscr();
@@ -1426,6 +1442,7 @@ void seats(int Seats_Needed)
                                 seat[j]->Occupied=true;
                                 seat[j]->Select=false;
                                 seat[j]->Draw();
+                                current_customer.myseats[j] = 1;
                             }                           
                         }
                         window(20,24,50,25);
