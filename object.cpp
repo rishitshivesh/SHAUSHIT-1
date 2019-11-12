@@ -1497,12 +1497,12 @@ void main()
         a++;
         i=1;
     }
-    for(p =0;p<25;p++)
-    {
-        puts(seat[p]->name);
-    }
-    getch();
-    //chkadmin();
+    // for(p =0;p<25;p++)
+    // {
+    //     cout<<seat[p]->name<<" ";
+    // }
+    // getch();
+    chkadmin();
     //EnterSeats();
     for(p =0;p<25;p++)
     {
