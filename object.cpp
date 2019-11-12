@@ -23,7 +23,7 @@ int TotalMenus=-1;
 enum bool{false,true};
 bool Admin_LoggedIn = false;
 bool Customer_LoggedIn = false;
-bool debug_mode = true;;
+bool debug_mode = false;
 int Navigate();
 void welcome();
 void Customerlogin();
@@ -841,11 +841,11 @@ void AdminHome()
     switch(Navigate(mAdminHome))
     {
         case 4:
-        {
-                window(20,24,50,25);
-                clrscr();
-                gotoxy(1,1);
-                cprintf("Do you want to LOG OUT(y/n)");
+        
+            window(20,24,50,25);
+            clrscr();
+            gotoxy(1,1);
+            cprintf("Do you want to LOG OUT(y/n)");
                 if(tolower(getch())=='y')
                 {
                     window(20,24,50,25);
@@ -859,7 +859,7 @@ void AdminHome()
                     window(1,1,80,25);
                     AdminHome();
                 } 
-        }
+        
         break;
         default:
             mAdminHome.EnableClickHandler(currentitem);
@@ -1108,7 +1108,7 @@ void Database_Settings()
             //menu[currentmenu].EnableClickHandler(currentitem);
         break;
         case 7:
-            //
+            
             AdminHome();
         break;
         default:
